@@ -152,7 +152,8 @@ def change_product_name_as_naver(df):
 def split_table_for_honest(df):
     honest_dataframe = df[df['상품명'] == '[Honest Line | 단품] 어니스트라인 (닭고야)']
     honest_indexes = honest_dataframe.index
-    original_product_dataframe = df.drop(honest_indexes,axis=0).reset_index(drop=True)
+    original_product_dataframe = df.drop(honest_indexes,axis=0)\
+        .reset_index(drop=True)
     honest_dataframe = honest_dataframe.reset_index(drop=True)
     return original_product_dataframe, honest_dataframe        
 
@@ -192,6 +193,71 @@ def resort_original_columns(naver_df, original_product_dataframe):
     original_product_dataframe = original_product_dataframe[naver_df.columns]
     return original_product_dataframe
 
+
+def preprocess_only_for_imweb_columns(original_product_dataframe):
+    naver_dataframe_columns = [
+        '상품주문번호', '주문번호', '배송방법(구매자 요청)', '배송방법', '택배사', '송장번호',\
+        '발송일', '구매자명', '수취인명', '상품명', '상품종류', '옵션정보', '수량', '옵션가격',\
+        '상품가격', '상품별 총 주문금액', '배송지', '구매자연락처', '배송메세지', '정산예정금액',\
+        '수취인연락처1', '배송속성', '배송희망일', '결제일', '구매자ID', '우편번호'
+    ]
+    add_columns = []
+    for col in naver_dataframe_columns:
+        if col not in original_product_dataframe.columns.to_list():
+            add_columns.append(col)
+    
+    for col in add_columns:
+        original_product_dataframe[col] = '없음'
+        
+    original_product_dataframe = original_product_dataframe[naver_dataframe_columns]
+    return original_product_dataframe
+
+
 def concat_imweb_and_naver(naver_df, original_product_dataframe):
-    uniformed_dataframe = pd.concat([naver_df, original_product_dataframe],axis=0)
+    uniformed_dataframe = pd.concat([naver_df, original_product_dataframe]\
+        ,axis=0)
     return uniformed_dataframe
+
+
+def preprocess_only_imweb(pd, iw_path):
+    apply_pandas(pd)
+    iw_df = read_imweb_table(iw_path)
+    iw_df = rename_columns(iw_df)
+    iw_df = strip_count_option(iw_df)
+    iw_df = rename_delivery_option(iw_df)
+    iw_df = change_product_name_by_option_add(iw_df)
+    iw_df = change_product_name_by_option_remove(iw_df)
+    iw_df = change_product_name_as_naver(iw_df)
+
+    original, honest = split_table_for_honest(iw_df)
+
+    original = preprocess_only_for_imweb_columns(original)
+    
+
+    honest = split_honest_options(honest)
+    honest = count_honest_products(honest)
+    honest = resort_honest_columns(honest)
+    return original, honest
+
+
+
+def total(pd, iw_path, naver_path):
+    apply_pandas(pd)
+    naver_df = read_naver_table(naver_path)
+    iw_df = read_imweb_table(iw_path)
+    iw_df = rename_columns(iw_df)
+    iw_df = strip_count_option(iw_df)
+    iw_df = rename_delivery_option(iw_df)
+    iw_df = change_product_name_by_option_add(iw_df)
+    iw_df = change_product_name_by_option_remove(iw_df)
+    iw_df = change_product_name_as_naver(iw_df)
+
+    original, honest = split_table_for_honest(iw_df)
+
+    original = resort_original_columns(naver_df, original)
+    uniform = concat_imweb_and_naver(naver_df, original)
+
+    honest = split_honest_options(honest)
+    honest = count_honest_products(honest)
+    honest = resort_honest_columns(honest)
+    return uniform, honest
