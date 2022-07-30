@@ -157,16 +157,30 @@ def split_table_for_honest(df):
     honest_dataframe = honest_dataframe.reset_index(drop=True)
     return original_product_dataframe, honest_dataframe        
 
+
 def split_honest_options(df):
     df['상품선택'] = ''
     for index_, option in enumerate(df['옵션정보'].to_list()):
+        if ' / 배송방법 선택 : ' in option:
+            delivery_option = option.split(' / 상품선택 : ')[1]\
+                .split(' / 배송방법 선택 : ')[1]
+                
+            product_option = option.split(' / 상품선택 : ')[1]\
+                .split(' / 배송방법 선택 : ')[0]
+                
+            df.loc[index_,'상품선택'] = product_option
+            df.loc[index_,'옵션정보'] = option.split(' / 상품선택 : ')[0]\
+                                        + ' / 배송방법 선택 : ' \
+                                        + delivery_option
+        else:                      
             df.loc[index_,'상품선택'] = option.split(' / 상품선택 : ')[1]
             df.loc[index_,'옵션정보'] = option.split(' / 상품선택 : ')[0]
     return df
 
+
 def count_honest_products(df):
     df['제조총수량'] = ''
-    for index_, option in enumerate(df['옵션정보'].to_list()):
+    for index_, option in enumerate(df['상품선택'].to_list()):
         if '단품' in option:
             df.loc[index_, '제조총수량'] = df.loc[index_, '수량'] * 1
             
@@ -174,12 +188,14 @@ def count_honest_products(df):
             df.loc[index_, '제조총수량'] = df.loc[index_, '수량'] * 4
     return df
 
+
 def resort_honest_columns(df):
     columns = ['상품주문번호', '주문번호', '구매자명', '수취인명', '상품명', '상품종류', 
                '옵션정보', '수량','제조총수량','배송지','구매자연락처', '배송메세지', 
                '수취인연락처1', '구매자ID', '우편번호']
     df = df[columns]
     return df
+
 
 def resort_original_columns(naver_df, original_product_dataframe):
     add_columns = []
