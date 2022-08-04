@@ -34,6 +34,7 @@ def read_naver_table(naver_path):
     columns = d_f.columns.to_list()
     drop_columns = [x for x in columns if x not in need_columns]
     d_f = d_f.drop(drop_columns, axis=1)
+    d_f['플랫폼'] = '네이버'
     return d_f
 
 
@@ -151,51 +152,36 @@ def change_product_name_by_option_remove(d_f):
 def change_product_name_as_naver(d_f):
     for index_, product in enumerate(d_f['상품명'].to_list()):
         if product == '[단품] 맛보기 박스 (랜덤2팩)':
-            d_f.loc[index_, '상품명'] = '윤식단 단품 샐러드 도시락 정기배송 다이어트 건강 식단'\
-                                    '새벽배송 배달 저염식 단백질'
+            d_f.loc[index_, '상품명'] = '[윤식단][단품] 윤식단/오리지널'
 
         elif product == '[Original line] 1일 1식 4일 프로그램':
-            d_f.loc[index_, '상품명'] = '[윤식단] 샐러드 정기 배송 - 1일 1식 4일 프로그램'
-
-        elif product == '[Original line] 1일 2식 4일 프로그램':
-            d_f.loc[index_, '상품명'] = '[윤식단] 샐러드 정기 배송 - 1일 2식 4일 프로그램'
-
-        elif product == '[Original line] 1일 3식 4일 프로그램':
-            d_f.loc[index_, '상품명'] = '[윤식단] 샐러드 정기 배송 - 1일 3식 4일 프로그램'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 1식 4일'
 
         elif product == '[Original line] 1일 1식 10일 프로그램':
-            d_f.loc[index_, '상품명'] = '[윤식단] 샐러드 정기 배달 - 1일 1식 10일 프로그램'\
-                                    '(2주)'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 1식 10일'
 
         elif product == '[Original line] 1일 1식 20일 프로그램':
-            d_f.loc[index_, '상품명'] = '윤식단 샐러드 정기배송 1일 1식 20일 프로그램 도시락'\
-                                    '배달 건강 식단 새벽 구독 저염'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 1식 20일'
 
         elif product == '[Original line] 1일 2식 10일 프로그램':
-            d_f.loc[index_, '상품명'] = '윤식단 샐러드 정기배송 1일 2식 10일 프로그램 도시락'\
-                                    '배달 다이어트 식단 새벽 구독'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 2식 10일'
 
         elif product == '[Original line] 1일 2식 20일 프로그램':
-            d_f.loc[index_, '상품명'] = '윤식단 샐러드 정기배송 1일 2식 20일 프로그램 도시락'\
-                                    '배달 다이어트 식단 새벽 구독'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 2식 20일'        
 
         elif product == '[Original line] 1일 3식 10일 프로그램':
-            d_f.loc[index_, '상품명'] = '윤식단 샐러드 정기배송 1일 3식 10일 프로그램 도시락'\
-                                    '배달 다이어트 식단 새벽 구독'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 3식 10일'
 
         elif product == '[Original line] 1일 3식 20일 프로그램':
-            d_f.loc[index_, '상품명'] = '윤식단 샐러드 정기배송 1일 3식 20일 프로그램 도시락'\
-                                    '배달 다이어트 식단 새벽 구독'
+            d_f.loc[index_, '상품명'] = '[윤식단][정기] 1일 3식 20일'                
                                     
         elif product == '[Honest Line | 단품] 어니스트라인 (닭고야)':
-            d_f.loc[index_, '상품명'] = '[윤식단 단품] 닭고야 샐러드 도시락 정기배송 다이어트'\
-                            ' 건강 식단 새벽배송 배달 저염식 단백질 바프식단 바디프로필식단'
+            d_f.loc[index_, '상품명'] = '[윤식단][단품] 닭고야/어니스트'
     return d_f
 
 
 def split_table_for_honest(d_f):
-    honest_dataframe = d_f[d_f['상품명'] == '[윤식단 단품] 닭고야 샐러드 도시락 정기배송 '\
-                         '다이어트 건강 식단 새벽배송 배달 저염식 단백질 바프식단 바디프로필식단']
+    honest_dataframe = d_f[d_f['상품명'] == '[윤식단][단품] 닭고야/어니스트']
     honest_indexes = honest_dataframe.index
     original_product_dataframe = d_f.drop(honest_indexes, axis=0)\
         .reset_index(drop=True)
@@ -203,17 +189,10 @@ def split_table_for_honest(d_f):
     return original_product_dataframe, honest_dataframe
 
 
-def split_honest_options(d_f):
-    d_f['상품선택'] = ''
-    for index_, option in enumerate(d_f['옵션정보'].to_list()):
-        d_f.loc[index_, '상품선택'] = option.split(' / 상품선택 : ')[1]
-        d_f.loc[index_, '옵션정보'] = option.split(' / 상품선택 : ')[0]
-    return d_f
-
-
 def resort_honest_columns(d_f):
     columns = ['상품주문번호', '주문번호', '구매자명', '수취인명', '상품명', '상품종류',
-               '옵션정보', '수량', '배송지', '구매자연락처', '배송메세지', '수취인연락처1', '구매자ID', '우편번호']
+               '옵션정보', '수량', '배송지', '구매자연락처', '배송메세지', '수취인연락처1',\
+               '구매자ID', '우편번호']
     d_f = d_f[columns]
     return d_f
 
@@ -229,6 +208,7 @@ def resort_original_columns(naver_df, original_product_dataframe):
         original_product_dataframe[col] = np.nan
 
     original_product_dataframe = original_product_dataframe[naver_df.columns]
+    original_product_dataframe['플랫폼'] = '자사몰'
     return original_product_dataframe
 
 
@@ -268,7 +248,6 @@ def total(p_d, iw_path, naver_path):
     original = resort_original_columns(naver_df, original)
     uniform = concat_imweb_and_naver(naver_df, original)
     
-    honest = split_honest_options(honest)
     honest = resort_honest_columns(honest)
     
     honest = create_new_honest_columns(uniform, honest)
