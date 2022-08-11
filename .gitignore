@@ -3,3 +3,5 @@
 *.xlsx
 .ipynb_checkpoints/
 *.csv
+*.pptx
+*.pdf
