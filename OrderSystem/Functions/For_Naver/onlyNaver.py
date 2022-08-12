@@ -72,50 +72,59 @@ def split_product_options(d_f):
         main_idx = main_df[main_df['주문번호']==order_id].index[0]
         opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
         d_f.loc[main_idx,'옵션유무'] = 'O'
+        # print(opt_list)
         add = []
         change = []
         pack = []
         for opt in opt_list:
-            if '추가' in opt:
+            # print(opt)
+            if '단백질' in opt:
                 add.append(opt)
-            elif '세트' in opt:
+            elif '탄수화물' in opt:
+                add.append(opt)    
+            elif '팩' in opt:
                 pack.append(opt)
             else:
                 change.append(opt)
-        if len(add) == 0:
-            for add_col in ['단백질추가', '탄수화물추가']:
-                d_f.loc[main_idx, add_col] = np.nan
-        else:
-            for add_opt in add:
-                if '단백질' in add_opt:
-                    d_f.loc[main_idx, '단백질추가'] = add_opt
-                elif '탄수화물' in add_opt:
-                    d_f.loc[main_idx, '탄수화물추가'] = add_opt
-        if len(change) == 0:
-            for opt_col in ['고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타']:
-                d_f.loc[main_idx, opt_col] = np.nan
-        else:
-            for change_opt in change:
-                # print(change_opt)
-                if '+' in change_opt:
-                    d_f.loc[main_idx, '고구마+현미밥'] = change_opt
-                elif '현미밥만' in change_opt:
-                    d_f.loc[main_idx, '현미밥만'] = change_opt
-                elif '콩' in change_opt:
-                    d_f.loc[main_idx, '콩제외'] = change_opt
-                elif '당근' in change_opt:
-                    d_f.loc[main_idx, '당근제외'] = change_opt
-                elif '오이' in change_opt:
-                    d_f.loc[main_idx, '오이제외'] = change_opt
-                elif '기타' in change_opt:
-                    d_f.loc[main_idx, '기타'] = change_opt
-        if len(pack) == 0:
-            d_f.loc[main_idx, '단품옵션'] = np.nan
-        else:
-            for p_opt in pack:
-                d_f.loc[main_idx, '단품옵션'] = p_opt
-    d_f = d_f.fillna('X')
-    d_f = d_f[d_f['상품종류']=='조합형옵션상품']
+                
+            if len(add) == 0:
+                for add_col in ['단백질추가', '탄수화물추가']:
+                    d_f.loc[main_idx, add_col] = np.nan
+            else:
+                for add_opt in add:
+                    if '단백질' in add_opt:
+                        d_f.loc[main_idx, '단백질추가'] = add_opt
+                    elif '탄수화물' in add_opt:
+                        d_f.loc[main_idx, '탄수화물추가'] = add_opt
+            if len(change) == 0:
+                for opt_col in ['고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타']:
+                    d_f.loc[main_idx, opt_col] = np.nan
+            else:
+                for change_opt in change:
+                    # print(change_opt)
+                    if '+' in change_opt:
+                        d_f.loc[main_idx, '고구마+현미밥'] = change_opt
+                    elif '현미밥만' in change_opt:
+                        d_f.loc[main_idx, '현미밥만'] = change_opt
+                    elif '콩' in change_opt:
+                        d_f.loc[main_idx, '콩제외'] = change_opt
+                    elif '당근' in change_opt:
+                        d_f.loc[main_idx, '당근제외'] = change_opt
+                    elif '오이' in change_opt:
+                        d_f.loc[main_idx, '오이제외'] = change_opt
+                    elif '기타' in change_opt:
+                        d_f.loc[main_idx, '기타'] = change_opt
+            if len(pack) == 0:
+                # d_f.loc[main_idx, '단품옵션_1'] = np.nan
+                pass
+            else:
+                for p_opt in pack:
+                    if '세트' in p_opt:
+                        d_f.loc[main_idx, f'세트옵션'] = p_opt
+                    elif '단품' in p_opt:
+                        d_f.loc[main_idx, f'단품옵션'] = p_opt
+        d_f = d_f.fillna('X')
+        d_f = d_f[d_f['상품종류']=='조합형옵션상품']
     return d_f
 
 
@@ -132,26 +141,19 @@ def change_product_name_list(product_name):
         return '[윤식단][정기] 1일 1식 4일'
     elif product_name == '[윤식단] 샐러드 정기 배달 - 1일 1식 10일 프로그램 (2주)':
         return '[윤식단][정기] 1일 1식 10일'
-    elif product_name == '윤식단 샐러드 정기배송 1일 1식 20일 프로그램 도시락 배달 건강 식단'\
-        '새벽 구독 저염':
+    elif product_name == '윤식단 샐러드 정기배송 1일 1식 20일 프로그램 도시락 배달 건강 식단 새벽 구독 저염':
         return '[윤식단][정기] 1일 1식 20일'
-    elif product_name == '윤식단 샐러드 정기배송 1일 2식 10일 프로그램 도시락 배달 다이어트'\
-        '식단 새벽 구독':
+    elif product_name == '윤식단 샐러드 정기배송 1일 2식 10일 프로그램 도시락 배달 다이어트 식단 새벽 구독':
         return '[윤식단][정기] 1일 2식 10일'
-    elif product_name == '윤식단 샐러드 정기배송 1일 2식 20일 프로그램 도시락 배달 다이어트'\
-        '식단 새벽 구독':
+    elif product_name == '윤식단 샐러드 정기배송 1일 2식 20일 프로그램 도시락 배달 다이어트 식단 새벽 구독':
         return '[윤식단][정기] 1일 2식 20일'
-    elif product_name ==  '윤식단 샐러드 정기배송 1일 3식 10일 프로그램 도시락 배달 다이어트'\
-        '식단 새벽 구독':
+    elif product_name ==  '윤식단 샐러드 정기배송 1일 3식 10일 프로그램 도시락 배달 다이어트 식단 새벽 구독':
         return '[윤식단][정기] 1일 3식 10일'
-    elif product_name ==  '윤식단 샐러드 정기배송 1일 3식 20일 프로그램 도시락 배달 다이어트'\
-        '식단 새벽 구독':
+    elif product_name ==  '윤식단 샐러드 정기배송 1일 3식 20일 프로그램 도시락 배달 다이어트 식단 새벽 구독':
         return '[윤식단][정기] 1일 3식 20일'
-    elif product_name ==  '윤식단 단품 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달'\
-        '저염식 단백질':
+    elif product_name ==  '윤식단 단품 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달 저염식 단백질':
         return '[윤식단][단품] 윤식단/오리지널'
-    elif product_name == '[윤식단 단품] 닭고야 샐러드 도시락 정기배송 다이어트 건강 식단'\
-        '새벽배송 배달 저염식 단백질 바프식단 바디프로필식단':
+    elif product_name == '[윤식단 단품] 닭고야 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달 저염식 단백질 바프식단 바디프로필식단':
         return '[윤식단][단품] 닭고야/어니스트'
     else:
         return  product_name
