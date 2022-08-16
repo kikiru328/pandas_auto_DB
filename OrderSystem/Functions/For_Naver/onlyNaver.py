@@ -66,10 +66,19 @@ def split_product_options(d_f):
 
     Returns:
         d_f: resort by customer
+        
+    > 2022.08.16
+        상품명 (정기/단품) 에 따라 옵션이 다르게 들어가야된다.
+        장바구니 시 주문번호가 전체 동일하기 때문에
+        단품 옵션이 정기 옵션에 들어가거나 그 반대도 생긴다.
+        opt_list의 내용이 main_df의 상품에 따라 들어가게 **
+    
     """
     d_f, main_df, option_df = split_dataframe(d_f)
     for order_id in option_df['주문번호'].to_list():
         main_idx = main_df[main_df['주문번호']==order_id].index[0]
+        # sub_idx = main_df[(main_df['주문번호']==order_id) & ('[정기]' in main_df['상품명'])].index[0]
+        # box_idx = main_df[(main_df['주문번호']==order_id) & ('[단품]' in main_df['상품명'])].index[0]
         opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
         d_f.loc[main_idx,'옵션유무'] = 'O'
         # print(opt_list)
@@ -101,7 +110,6 @@ def split_product_options(d_f):
                     d_f.loc[main_idx, opt_col] = np.nan
             else:
                 for change_opt in change:
-                    # print(change_opt)
                     if '+' in change_opt:
                         d_f.loc[main_idx, '고구마+현미밥'] = change_opt
                     elif '현미밥만' in change_opt:
@@ -115,8 +123,8 @@ def split_product_options(d_f):
                     elif '기타' in change_opt:
                         d_f.loc[main_idx, '기타'] = change_opt
             if len(pack) == 0:
-                # d_f.loc[main_idx, '단품옵션_1'] = np.nan
-                pass
+                d_f.loc[main_idx, '단품옵션'] = np.nan
+                d_f.loc[main_idx, '세트옵션'] = np.nan
             else:
                 for p_opt in pack:
                     if '세트' in p_opt:
@@ -206,7 +214,7 @@ def resort_new_columns(d_f):
     new_col =[
     '상품주문번호','주문번호','플랫폼',
     '구매자명','구매자ID','구매자연락처','결제일',
-    '상품명','상품종류','수량','단품옵션','옵션유무',
+    '상품명','상품종류','수량','단품옵션','세트옵션','옵션유무',
     '단백질추가','탄수화물추가','고구마+현미밥','현미밥만','콩제외','당근제외','오이제외','기타','옵션정보',
     '상품가격','옵션가격','상품별 총 주문금액','정산예정금액',
     '수취인명','수취인연락처1', '배송지', '우편번호',
@@ -216,7 +224,7 @@ def resort_new_columns(d_f):
     return d_f
 
 
-def total(p_d, naver_path):
+def total_uniformize(p_d, naver_path):
     """
     Total functions
     Args:
