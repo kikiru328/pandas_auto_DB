@@ -161,6 +161,7 @@ def change_product_name_list(product_name):
         return '[윤식단][정기] 1일 3식 20일'
     elif product_name ==  '윤식단 단품 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달 저염식 단백질':
         return '[윤식단][단품] 윤식단/오리지널'
+        # return '[윤식단][정기] 1일 2식 1일'
     elif product_name == '[윤식단 단품] 닭고야 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달 저염식 단백질 바프식단 바디프로필식단':
         return '[윤식단][단품] 닭고야/어니스트'
     else:
