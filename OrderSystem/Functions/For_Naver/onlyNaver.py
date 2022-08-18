@@ -57,7 +57,6 @@ def split_dataframe(d_f):
     option_df = d_f[d_f['상품종류']=='추가구성상품']
     return d_f, main_df, option_df
 
-
 def split_product_options(d_f):
     """
     Split product option to add option by customer.
@@ -77,8 +76,10 @@ def split_product_options(d_f):
     d_f, main_df, option_df = split_dataframe(d_f)
     for order_id in option_df['주문번호'].to_list():
         main_idx = main_df[main_df['주문번호']==order_id].index[0]
-        # sub_idx = main_df[(main_df['주문번호']==order_id) & ('[정기]' in main_df['상품명'])].index[0]
-        # box_idx = main_df[(main_df['주문번호']==order_id) & ('[단품]' in main_df['상품명'])].index[0]
+        try:
+            box_idx = main_df[(main_df['주문번호']==order_id) & (main_df['상품명']=='[윤식단][단품] 닭고야/어니스트')].index[0]
+        except:
+            pass
         opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
         d_f.loc[main_idx,'옵션유무'] = 'O'
         # print(opt_list)
@@ -128,12 +129,88 @@ def split_product_options(d_f):
             else:
                 for p_opt in pack:
                     if '세트' in p_opt:
-                        d_f.loc[main_idx, f'세트옵션'] = p_opt
+                        d_f.loc[box_idx, f'세트옵션'] = p_opt
                     elif '단품' in p_opt:
-                        d_f.loc[main_idx, f'단품옵션'] = p_opt
+                        d_f.loc[box_idx, f'단품옵션'] = p_opt
         d_f = d_f.fillna('X')
         d_f = d_f[d_f['상품종류']=='조합형옵션상품']
     return d_f
+# def split_product_options(d_f):
+#     """
+#     Split product option to add option by customer.
+#     Args:
+#         d_f: Args for split_dataframe func
+
+#     Returns:
+#         d_f: resort by customer
+        
+#     > 2022.08.16
+#         상품명 (정기/단품) 에 따라 옵션이 다르게 들어가야된다.
+#         장바구니 시 주문번호가 전체 동일하기 때문에
+#         단품 옵션이 정기 옵션에 들어가거나 그 반대도 생긴다.
+#         opt_list의 내용이 main_df의 상품에 따라 들어가게 **
+    
+#     """
+#     d_f, main_df, option_df = split_dataframe(d_f)
+#     for order_id in option_df['주문번호'].to_list():
+#         main_idx = main_df[main_df['주문번호']==order_id].index[0]
+#         sub_idx = main_df[(main_df['주문번호']==order_id) & ('[정기]' in main_df['상품명'])].index[0]
+#         # box_idx = main_df[(main_df['주문번호']==order_id) & ('[단품]' in main_df['상품명'])].index[0]
+#         opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
+#         d_f.loc[main_idx,'옵션유무'] = 'O'
+#         # print(opt_list)
+#         add = []
+#         change = []
+#         pack = []
+#         for opt in opt_list:
+#             # print(opt)
+#             if '단백질' in opt:
+#                 add.append(opt)
+#             elif '탄수화물' in opt:
+#                 add.append(opt)    
+#             elif '팩' in opt:
+#                 pack.append(opt)
+#             else:
+#                 change.append(opt)
+                
+#             if len(add) == 0:
+#                 for add_col in ['단백질추가', '탄수화물추가']:
+#                     d_f.loc[main_idx, add_col] = np.nan
+#             else:
+#                 for add_opt in add:
+#                     if '단백질' in add_opt:
+#                         d_f.loc[main_idx, '단백질추가'] = add_opt
+#                     elif '탄수화물' in add_opt:
+#                         d_f.loc[main_idx, '탄수화물추가'] = add_opt
+#             if len(change) == 0:
+#                 for opt_col in ['고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타']:
+#                     d_f.loc[main_idx, opt_col] = np.nan
+#             else:
+#                 for change_opt in change:
+#                     if '+' in change_opt:
+#                         d_f.loc[main_idx, '고구마+현미밥'] = change_opt
+#                     elif '현미밥만' in change_opt:
+#                         d_f.loc[main_idx, '현미밥만'] = change_opt
+#                     elif '콩' in change_opt:
+#                         d_f.loc[main_idx, '콩제외'] = change_opt
+#                     elif '당근' in change_opt:
+#                         d_f.loc[main_idx, '당근제외'] = change_opt
+#                     elif '오이' in change_opt:
+#                         d_f.loc[main_idx, '오이제외'] = change_opt
+#                     elif '기타' in change_opt:
+#                         d_f.loc[main_idx, '기타'] = change_opt
+#             if len(pack) == 0:
+#                 d_f.loc[main_idx, '단품옵션'] = np.nan
+#                 d_f.loc[main_idx, '세트옵션'] = np.nan
+#             else:
+#                 for p_opt in pack:
+#                     if '세트' in p_opt:
+#                         d_f.loc[main_idx, f'세트옵션'] = p_opt
+#                     elif '단품' in p_opt:
+#                         d_f.loc[main_idx, f'단품옵션'] = p_opt
+#         d_f = d_f.fillna('X')
+#         d_f = d_f[d_f['상품종류']=='조합형옵션상품']
+#     return d_f
 
 
 def change_product_name_list(product_name):
