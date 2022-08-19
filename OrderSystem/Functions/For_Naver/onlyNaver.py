@@ -218,6 +218,310 @@ def split_delivery_options(d_f):
     return d_f
 
 
+def change(x):
+    return x.strftime('%Y-%m-%d %H:%M %A')
+
+
+
+def dawn_delivery_start(pay_time):
+    """
+    True : 17시 이후 > 다음 요일 배송 시스템으로 적용
+    False : 17시 이전 > 현재 요일 배송 시스템으로 적용
+
+    Args:
+        check_time: datetime timestamp
+
+    Returns:
+        _type_: bool. True/False
+    """
+    import datetime as dt
+    day = pay_time.weekday()        
+
+    # day_deliv 
+    def mon_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=2-pay_time.weekday(), weeks=0) # 이번주 수요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=3-pay_time.weekday(), weeks=0) # 이번주 목요일
+        return delivery_start
+                
+            
+    def tue_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=3-pay_time.weekday(), weeks=0) # 이번주 목요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start                    
+            
+            
+    def wed_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+
+
+    def thu_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+    
+                
+    def fri_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+    
+                    
+    def sat_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        return delivery_start
+
+                        
+    def sun_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=2-pay_time.weekday(), weeks=1) # 다음주 수요일
+        return delivery_start                                                
+
+    
+    if day == 0:
+        return mon_delivery(pay_time)
+    elif day == 1:
+        return tue_delivery(pay_time)
+    elif day == 2:
+        return wed_delivery(pay_time)
+    elif day == 3:
+        return thu_delivery(pay_time)
+    elif day == 4:
+        return fri_delivery(pay_time)
+    elif day == 5:
+        return sat_delivery(pay_time)
+    elif day == 6:
+        return sun_delivery(pay_time)
+    
+
+def normal_delivery_start(pay_time):
+    """
+    True : 17시 이후 > 다음 요일 배송 시스템으로 적용
+    False : 17시 이전 > 현재 요일 배송 시스템으로 적용
+
+    Args:
+        check_time: datetime timestamp
+
+    Returns:
+        _type_: bool. True/False
+    """
+    import datetime as dt
+    day = pay_time.weekday()        
+
+    # day_deliv 
+    def mon_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=3-pay_time.weekday(), weeks=0) # 이번주 목요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=3-pay_time.weekday(), weeks=0) # 이번주 목요일
+        return delivery_start
+                
+            
+    def tue_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=3-pay_time.weekday(), weeks=0) # 이번주 목요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        return delivery_start                    
+            
+            
+    def wed_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        return delivery_start
+
+
+    def thu_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        return delivery_start
+    
+                
+    def fri_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        return delivery_start
+    
+                    
+    def sat_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        return delivery_start
+
+                        
+    def sun_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=1-pay_time.weekday(), weeks=1) # 다음주 화요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=3-pay_time.weekday(), weeks=1) # 다음주 목요일
+        return delivery_start                                                
+
+    
+    if day == 0:
+        return mon_delivery(pay_time)
+    elif day == 1:
+        return tue_delivery(pay_time)
+    elif day == 2:
+        return wed_delivery(pay_time)
+    elif day == 3:
+        return thu_delivery(pay_time)
+    elif day == 4:
+        return fri_delivery(pay_time)
+    elif day == 5:
+        return sat_delivery(pay_time)
+    elif day == 6:
+        return sun_delivery(pay_time)
+    
+        
+def direct_delivery_start(pay_time):
+    """
+    True : 17시 이후 > 다음 요일 배송 시스템으로 적용
+    False : 17시 이전 > 현재 요일 배송 시스템으로 적용
+
+    Args:
+        check_time: datetime timestamp
+
+    Returns:
+        _type_: bool. True/False
+    """
+    import datetime as dt
+    day = pay_time.weekday()
+
+    # day_deliv 
+    def mon_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=2-pay_time.weekday(), weeks=0) # 이번주 수요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+                
+            
+    def tue_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start                    
+            
+            
+    def wed_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+
+
+    def thu_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+    
+                
+    def fri_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        return delivery_start
+    
+                    
+    def sat_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=0-pay_time.weekday(), weeks=1) # 다음주 월요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=2-pay_time.weekday(), weeks=1) # 다음주 수요일
+        return delivery_start
+
+                        
+    def sun_delivery(pay_time):
+        after5 = dt.datetime(pay_time.year, pay_time.month, pay_time.day, 17, 0, 0)
+        if pay_time < after5: # 5시 이전 결제
+            delivery_start = pay_time + dt.timedelta(days=2-pay_time.weekday(), weeks=1) # 다음주 수요일
+        else:    
+            delivery_start = pay_time + dt.timedelta(days=2-pay_time.weekday(), weeks=1) # 다음주 수요일
+        return delivery_start                                                
+
+    
+    if day == 0:
+        return mon_delivery(pay_time)
+    elif day == 1:
+        return tue_delivery(pay_time)
+    elif day == 2:
+        return wed_delivery(pay_time)
+    elif day == 3:
+        return thu_delivery(pay_time)
+    elif day == 4:
+        return fri_delivery(pay_time)
+    elif day == 5:
+        return sat_delivery(pay_time)
+    elif day == 6:
+        return sun_delivery(pay_time)
+    
+
+def get_deliv_start_day(d_f):
+    for pay_day, deliv_selection in zip(d_f.결제일.to_list(), d_f['배송방법 고객선택'].to_list()):
+        if deliv_selection == '새벽배송':
+            delivery_start = dawn_delivery_start(pay_day)
+            index = d_f[d_f['결제일']==pay_day].index[0]
+            d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')
+        elif deliv_selection == '일반배송':
+            delivery_start = normal_delivery_start(pay_day)
+            index = d_f[d_f['결제일']==pay_day].index[0]
+            d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
+        elif deliv_selection == '직접배송':
+            delivery_start = direct_delivery_start(pay_day)
+            index = d_f[d_f['결제일']==pay_day].index[0]
+            d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
+    return d_f
+
+    
 def resort_new_columns(d_f):
     """
     Resort new columns for uniform
@@ -228,14 +532,12 @@ def resort_new_columns(d_f):
         d_f: resort columns df
     """
     new_col =[
-    '상품주문번호','주문번호','플랫폼',
-    '구매자명','구매자ID','구매자연락처','결제일',
-    '상품명','상품종류','수량','단품옵션','세트옵션','옵션유무',
-    '단백질추가','탄수화물추가','고구마+현미밥','현미밥만','콩제외','당근제외','오이제외','기타',
-    '옵션정보','상품가격','옵션가격','상품별 총 주문금액','정산예정금액',
-    '수취인명','수취인연락처1', '배송지', '우편번호',
-    '배송방법(구매자 요청)','배송방법 고객선택','배송방법','배송속성','택배사','송장번호','발송일',
-    '배송희망일', '공동현관 출입비밀번호','배송메세지']
+    '상품주문번호', '주문번호', '플랫폼', '구매자명', '구매자ID', '구매자연락처', '결제일',
+    '상품명','상품종류','수량','단품옵션','세트옵션','옵션유무', '단백질추가', '탄수화물추가',
+    '고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타', '옵션정보', '상품가격',
+    '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '배송지',
+    '우편번호', '배송방법(구매자 요청)', '배송방법 고객선택', '배송방법', '배송속성', '택배사',
+    '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '공동현관 출입비밀번호','배송메세지']
     d_f = d_f[new_col]
     return d_f
 
@@ -251,9 +553,11 @@ def total_uniformize(p_d, naver_path):
     """
     apply_pandas(p_d)
     d_f = read_naver_table(naver_path)
-    d_f = split_product_options(d_f)
     d_f = change_product_name_by_list(d_f)
+    d_f = split_product_options(d_f)
     d_f = split_delivery_options(d_f)
+    d_f['결제요일'] = d_f['결제일'].apply(lambda x : change(x))
+    d_f = get_deliv_start_day(d_f)
     d_f = resort_new_columns(d_f)
     return d_f
 
