@@ -7,6 +7,10 @@ Returns:
 import pandas as pd
 import numpy as np
 import datetime as dt
+import requests
+import json 
+from pandas import json_normalize
+holiday_json_path = './holiday_api.json'
 
 
 def apply_pandas(p_d):
@@ -659,24 +663,22 @@ def resort_new_columns(d_f):
     return d_f
 
     
-# def resort_new_columns(d_f):
-#     """
-#     Resort new columns for uniform
-#     Args:
-#         d_f: main df
-
-#     Returns:
-#         d_f: resort columns df
-#     """
-#     new_col =[
-#     '상품주문번호', '주문번호', '플랫폼', '구매자명', '구매자ID', '구매자연락처', '결제일',
-#     '상품명','상품종류','수량','단품옵션','세트옵션','옵션유무', '단백질추가', '탄수화물추가',
-#     '고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타', '옵션정보', '상품가격',
-#     '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '배송지',
-#     '우편번호', '배송방법(구매자 요청)', '배송방법 고객선택', '배송방법', '배송속성', '택배사',
-#     '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '공동현관 출입비밀번호','배송메세지']
-#     d_f = d_f[new_col]
-#     return d_f
+def holiday_df(holiday_json_path):
+    with open(holiday_json_path, 'r') as api_key:
+        key = json.load(api_key)
+    api_key = key['holiday_api_key']
+    
+    today = dt.datetime.today().strftime('%Y%m%d')
+    today_year = dt.datetime.today().year
+    key = api_key
+    url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?_type=json&numOfRows=50&solYear=' + str(today_year) + '&ServiceKey=' + str(key)
+    response = requests.get(url)
+    if response.status_code == 200:
+        json_ob = json.loads(response.text)
+        holidays_data = json_ob['response']['body']['items']['item']
+        dataframe = json_normalize(holidays_data)
+    dateName = dataframe.loc[dataframe['locdate'] == int(today), 'dateName']
+    return dataframe
 
 
 def total_uniformize(p_d, naver_path):
