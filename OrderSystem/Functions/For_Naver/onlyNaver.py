@@ -615,18 +615,23 @@ def get_deliv_last_day(d_f):
     d_f['마지막배송일'] = ''
     for order_id, product, deliv_start, deliv_selection in zip(d_f['주문번호'], d_f['상품명'], d_f['배송시작일'], d_f['배송방법 고객선택']):
         if '[정기]' in product:
-            for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
-                if deliv_selection == '새벽배송':
-                    dawn_list = dawn_delivery_last(product, deliv_start)
-                    d_f.loc[index, '마지막배송일'] = dawn_list
-                
-                elif deliv_selection == '일반배송':
-                    normal_list = normal_delivery_last(product, deliv_start)
-                    d_f.loc[index, '마지막배송일'] = normal_list
+            if product == '[윤식단][정기] 1일 2식 1일':
+                for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
+                    d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
                     
-                elif deliv_selection == '직접배송':
-                        direct_list = direct_delivery_last(product, deliv_start)
-                        d_f.loc[index, '마지막배송일'] = direct_list
+            else:        
+                for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
+                    if deliv_selection == '새벽배송':
+                        dawn_list = dawn_delivery_last(product, deliv_start)
+                        d_f.loc[index, '마지막배송일'] = dawn_list
+                    
+                    elif deliv_selection == '일반배송':
+                        normal_list = normal_delivery_last(product, deliv_start)
+                        d_f.loc[index, '마지막배송일'] = normal_list
+                        
+                    elif deliv_selection == '직접배송':
+                            direct_list = direct_delivery_last(product, deliv_start)
+                            d_f.loc[index, '마지막배송일'] = direct_list
                         
         else:
             for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:  
