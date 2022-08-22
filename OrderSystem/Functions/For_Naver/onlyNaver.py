@@ -507,15 +507,15 @@ def direct_delivery_start(pay_time):
 def get_deliv_start_day(d_f):
     for pay_day, deliv_selection in zip(d_f.결제일.to_list(), d_f['배송방법 고객선택'].to_list()):
         if deliv_selection == '새벽배송':
-            delivery_start = onlyNaver.dawn_delivery_start(pay_day)
+            delivery_start = dawn_delivery_start(pay_day)
             for index in d_f[d_f['결제일']==pay_day].index:
                 d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')
         elif deliv_selection == '일반배송':
-            delivery_start = onlyNaver.normal_delivery_start(pay_day)
+            delivery_start = normal_delivery_start(pay_day)
             for index in d_f[d_f['결제일']==pay_day].index:
                 d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
         elif deliv_selection == '직접배송':
-            delivery_start = onlyNaver.direct_delivery_start(pay_day)
+            delivery_start = direct_delivery_start(pay_day)
             for index in d_f[d_f['결제일']==pay_day].index:
                 d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')         
     return d_f
