@@ -6,6 +6,7 @@ Returns:
 """
 import pandas as pd
 import numpy as np
+import datetime as dt
 
 
 def apply_pandas(p_d):
@@ -66,8 +67,8 @@ def change_product_name_list(product_name):
     elif product_name ==  '윤식단 샐러드 정기배송 1일 3식 20일 프로그램 도시락 배달 다이어트 식단 새벽 구독':
         return '[윤식단][정기] 1일 3식 20일'
     elif product_name ==  '윤식단 단품 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달 저염식 단백질':
-        return '[윤식단][단품] 윤식단/오리지널'
-        # return '[윤식단][정기] 1일 2식 1일'
+        # return '[윤식단][단품] 윤식단/오리지널'
+        return '[윤식단][정기] 1일 2식 1일'
     elif product_name == '[윤식단 단품] 닭고야 샐러드 도시락 정기배송 다이어트 건강 식단 새벽배송 배달 저염식 단백질 바프식단 바디프로필식단':
         return '[윤식단][단품] 닭고야/어니스트'
     else:
@@ -234,7 +235,6 @@ def dawn_delivery_start(pay_time):
     Returns:
         _type_: bool. True/False
     """
-    import datetime as dt
     day = pay_time.weekday()        
 
     # day_deliv 
@@ -328,7 +328,6 @@ def normal_delivery_start(pay_time):
     Returns:
         _type_: bool. True/False
     """
-    import datetime as dt
     day = pay_time.weekday()        
 
     # day_deliv 
@@ -422,7 +421,7 @@ def direct_delivery_start(pay_time):
     Returns:
         _type_: bool. True/False
     """
-    import datetime as dt
+    
     day = pay_time.weekday()
 
     # day_deliv 
@@ -521,6 +520,120 @@ def get_deliv_start_day(d_f):
             d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
     return d_f
 
+
+def direct_delivery_last(product, deliv_start, deliv_selection):    
+    # print('DIRECT_FUCNTION')
+    days = int(product[-3:-1])
+    deliv_list = []
+    # print(f'product : {product}\n deliv_start : {deliv_start}\n deliv_selection : {deliv_selection}\n days : {days}\n')
+    deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
+    
+    i = 0
+    while len(deliv_list) < days:
+        if len(deliv_list) == 0:
+            deliv_list.append(deliv_start)  
+            if deliv_start.weekday() == 0: # if monday 
+                deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)) # append wednesday 
+                i += 1
+            else:
+                i += 1
+                
+        deliv_list.append(deliv_start + dt.timedelta(days=0-deliv_start.weekday(), weeks=i))
+        if len(deliv_list) == days:
+            break
+        deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i))
+        i += 1
+    
+    last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
+    return last_deliv_day
+    
+def normal_delivery_last(product, deliv_start, deliv_selection):    
+    # print('NORMAL_FUCNTION')
+    days = int(product[-3:-1])
+    deliv_list = []
+    # print(f'product : {product}\n deliv_start : {deliv_start}\n deliv_selection : {deliv_selection}\n days : {days}\n')
+    deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
+    
+    i = 0
+    while len(deliv_list) < days:
+        if len(deliv_list) == 0:
+            deliv_list.append(deliv_start)  
+            if deliv_start.weekday() == 1: # if tuesday 
+                deliv_list.append(deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i)) # append thursday
+                i += 1
+            else: # if thursday
+                i += 1
+                
+        deliv_list.append(deliv_start + dt.timedelta(days=1-deliv_start.weekday(), weeks=i))
+        if len(deliv_list) == days:
+            break
+        deliv_list.append(deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i))
+        i += 1
+    
+    last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
+    return last_deliv_day
+
+def dawn_delivery_last(product, deliv_start, deliv_selection):    
+    # print('DAWN_FUCNTION')
+    days = int(product[-3:-1])
+    deliv_list = []
+    # print(f'product : {product}\n deliv_start : {deliv_start}\n deliv_selection : {deliv_selection}\n days : {days}\n')
+    deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
+    
+    i = 0
+    
+    while len(deliv_list) < days:
+        if len(deliv_list) == 0:
+            deliv_list.append(deliv_start)  
+            
+            if deliv_start.weekday() == 0: # if monday 
+                deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)) # append Wednesday
+                i += 1
+            elif deliv_start.weekday() == 1: # if tuesday
+                deliv_list.append(deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i)) # append thursday
+                i += 1
+            else: # not monday and tuesday (in wendesday, thuresday)
+                i += 1
+                
+        else:
+            if (deliv_start.weekday() == 0) or (deliv_start.weekday() == 2):
+                deliv_list.append(deliv_start + dt.timedelta(days=0-deliv_start.weekday(), weeks=i))
+                if len(deliv_list) == days:
+                    break
+                deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i))
+                i += 1
+                
+            elif (deliv_start.weekday() == 1) or (deliv_start.weekday() == 3):
+            
+                deliv_list.append(deliv_start + dt.timedelta(days=1-deliv_start.weekday(), weeks=i))
+                if len(deliv_list) == days:
+                    break
+                deliv_list.append(deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i))
+                i += 1                
+                
+    last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
+    return last_deliv_day
+
+
+def get_deliv_last_day(d_f):
+    d_f['마지막배송일'] = ''
+    for order_id, product, deliv_start, deliv_selection in zip(d_f['주문번호'], d_f['상품명'], d_f['배송시작일'], d_f['배송방법 고객선택']):
+        if '[정기]' in product:
+            index = d_f[d_f['주문번호']==order_id].index[0]
+            if deliv_selection == '새벽배송':
+                dawn_list = dawn_delivery_last(product, deliv_start, deliv_selection)
+                d_f.loc[index, '마지막배송일'] = dawn_list
+            
+            elif deliv_selection == '일반배송':
+                normal_list = normal_delivery_last(product, deliv_start, deliv_selection)
+                d_f.loc[index, '마지막배송일'] = normal_list
+                
+            elif deliv_selection == '직접배송':
+                direct_list = direct_delivery_last(product, deliv_start, deliv_selection)
+                d_f.loc[index, '마지막배송일'] = direct_list
+    return d_f
+
+
     
 def resort_new_columns(d_f):
     """
@@ -537,7 +650,7 @@ def resort_new_columns(d_f):
     '고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타', '옵션정보', '상품가격',
     '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '배송지',
     '우편번호', '배송방법(구매자 요청)', '배송방법 고객선택', '배송방법', '배송속성', '택배사',
-    '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '공동현관 출입비밀번호','배송메세지']
+    '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '마지막배송일', '공동현관 출입비밀번호','배송메세지']
     d_f = d_f[new_col]
     return d_f
 
@@ -557,7 +670,9 @@ def total_uniformize(p_d, naver_path):
     d_f = split_product_options(d_f)
     d_f = split_delivery_options(d_f)
     d_f['결제요일'] = d_f['결제일'].apply(lambda x : change(x))
+    d_f = d_f.reset_index(drop=True)
     d_f = get_deliv_start_day(d_f)
+    d_f = get_deliv_last_day(d_f)
     d_f = resort_new_columns(d_f)
     return d_f
 
