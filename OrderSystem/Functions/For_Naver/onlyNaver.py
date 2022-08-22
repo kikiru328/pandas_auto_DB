@@ -677,7 +677,6 @@ def holiday_df(holiday_json_path):
         json_ob = json.loads(response.text)
         holidays_data = json_ob['response']['body']['items']['item']
         dataframe = json_normalize(holidays_data)
-    dateName = dataframe.loc[dataframe['locdate'] == int(today), 'dateName']
     return dataframe
 
 
