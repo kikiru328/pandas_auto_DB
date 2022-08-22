@@ -677,6 +677,13 @@ def holiday_df(holiday_json_path):
         json_ob = json.loads(response.text)
         holidays_data = json_ob['response']['body']['items']['item']
         dataframe = json_normalize(holidays_data)
+        
+    def change_date(x):
+        hx = dt.datetime.strptime(str(x), '%Y%m%d')
+        hx = hx.strftime('%Y-%m-%d-%A')
+        return hx 
+    
+    dataframe['locdate'] = dataframe['locdate'].apply(lambda x : change_date(x))
     return dataframe
 
 
