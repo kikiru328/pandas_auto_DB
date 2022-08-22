@@ -507,25 +507,23 @@ def direct_delivery_start(pay_time):
 def get_deliv_start_day(d_f):
     for pay_day, deliv_selection in zip(d_f.결제일.to_list(), d_f['배송방법 고객선택'].to_list()):
         if deliv_selection == '새벽배송':
-            delivery_start = dawn_delivery_start(pay_day)
-            index = d_f[d_f['결제일']==pay_day].index[0]
-            d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')
+            delivery_start = onlyNaver.dawn_delivery_start(pay_day)
+            for index in d_f[d_f['결제일']==pay_day].index:
+                d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')
         elif deliv_selection == '일반배송':
-            delivery_start = normal_delivery_start(pay_day)
-            index = d_f[d_f['결제일']==pay_day].index[0]
-            d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
+            delivery_start = onlyNaver.normal_delivery_start(pay_day)
+            for index in d_f[d_f['결제일']==pay_day].index:
+                d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
         elif deliv_selection == '직접배송':
-            delivery_start = direct_delivery_start(pay_day)
-            index = d_f[d_f['결제일']==pay_day].index[0]
-            d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
+            delivery_start = onlyNaver.direct_delivery_start(pay_day)
+            for index in d_f[d_f['결제일']==pay_day].index:
+                d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')         
     return d_f
 
 
-def direct_delivery_last(product, deliv_start, deliv_selection):    
-    # print('DIRECT_FUCNTION')
+def direct_delivery_last(product, deliv_start):    
     days = int(product[-3:-1])
     deliv_list = []
-    # print(f'product : {product}\n deliv_start : {deliv_start}\n deliv_selection : {deliv_selection}\n days : {days}\n')
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
     
     i = 0
@@ -547,11 +545,9 @@ def direct_delivery_last(product, deliv_start, deliv_selection):
     last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
     return last_deliv_day
     
-def normal_delivery_last(product, deliv_start, deliv_selection):    
-    # print('NORMAL_FUCNTION')
+def normal_delivery_last(product, deliv_start):    
     days = int(product[-3:-1])
     deliv_list = []
-    # print(f'product : {product}\n deliv_start : {deliv_start}\n deliv_selection : {deliv_selection}\n days : {days}\n')
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
     
     i = 0
@@ -573,11 +569,9 @@ def normal_delivery_last(product, deliv_start, deliv_selection):
     last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
     return last_deliv_day
 
-def dawn_delivery_last(product, deliv_start, deliv_selection):    
-    # print('DAWN_FUCNTION')
+def dawn_delivery_last(product, deliv_start):    
     days = int(product[-3:-1])
     deliv_list = []
-    # print(f'product : {product}\n deliv_start : {deliv_start}\n deliv_selection : {deliv_selection}\n days : {days}\n')
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
     
     i = 0
@@ -619,22 +613,25 @@ def get_deliv_last_day(d_f):
     d_f['마지막배송일'] = ''
     for order_id, product, deliv_start, deliv_selection in zip(d_f['주문번호'], d_f['상품명'], d_f['배송시작일'], d_f['배송방법 고객선택']):
         if '[정기]' in product:
-            index = d_f[d_f['주문번호']==order_id].index[0]
-            if deliv_selection == '새벽배송':
-                dawn_list = dawn_delivery_last(product, deliv_start, deliv_selection)
-                d_f.loc[index, '마지막배송일'] = dawn_list
-            
-            elif deliv_selection == '일반배송':
-                normal_list = normal_delivery_last(product, deliv_start, deliv_selection)
-                d_f.loc[index, '마지막배송일'] = normal_list
+            for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
+                if deliv_selection == '새벽배송':
+                    dawn_list = dawn_delivery_last(product, deliv_start, deliv_selection)
+                    d_f.loc[index, '마지막배송일'] = dawn_list
                 
-            elif deliv_selection == '직접배송':
-                direct_list = direct_delivery_last(product, deliv_start, deliv_selection)
-                d_f.loc[index, '마지막배송일'] = direct_list
+                elif deliv_selection == '일반배송':
+                    normal_list = normal_delivery_last(product, deliv_start, deliv_selection)
+                    d_f.loc[index, '마지막배송일'] = normal_list
+                    
+                elif deliv_selection == '직접배송':
+                        direct_list = direct_delivery_last(product, deliv_start, deliv_selection)
+                        d_f.loc[index, '마지막배송일'] = direct_list
+                        
+        else:
+            for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:  
+                d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
     return d_f
 
 
-    
 def resort_new_columns(d_f):
     """
     Resort new columns for uniform
@@ -653,6 +650,26 @@ def resort_new_columns(d_f):
     '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '마지막배송일', '공동현관 출입비밀번호','배송메세지']
     d_f = d_f[new_col]
     return d_f
+
+    
+# def resort_new_columns(d_f):
+#     """
+#     Resort new columns for uniform
+#     Args:
+#         d_f: main df
+
+#     Returns:
+#         d_f: resort columns df
+#     """
+#     new_col =[
+#     '상품주문번호', '주문번호', '플랫폼', '구매자명', '구매자ID', '구매자연락처', '결제일',
+#     '상품명','상품종류','수량','단품옵션','세트옵션','옵션유무', '단백질추가', '탄수화물추가',
+#     '고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타', '옵션정보', '상품가격',
+#     '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '배송지',
+#     '우편번호', '배송방법(구매자 요청)', '배송방법 고객선택', '배송방법', '배송속성', '택배사',
+#     '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '공동현관 출입비밀번호','배송메세지']
+#     d_f = d_f[new_col]
+#     return d_f
 
 
 def total_uniformize(p_d, naver_path):
