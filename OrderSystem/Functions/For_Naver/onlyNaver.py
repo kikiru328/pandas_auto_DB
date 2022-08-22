@@ -545,6 +545,7 @@ def direct_delivery_last(product, deliv_start):
     last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
     return last_deliv_day
     
+    
 def normal_delivery_last(product, deliv_start):    
     days = int(product[-3:-1])
     deliv_list = []
@@ -568,6 +569,7 @@ def normal_delivery_last(product, deliv_start):
     
     last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
     return last_deliv_day
+
 
 def dawn_delivery_last(product, deliv_start):    
     days = int(product[-3:-1])
@@ -615,15 +617,15 @@ def get_deliv_last_day(d_f):
         if '[정기]' in product:
             for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
                 if deliv_selection == '새벽배송':
-                    dawn_list = dawn_delivery_last(product, deliv_start, deliv_selection)
+                    dawn_list = dawn_delivery_last(product, deliv_start)
                     d_f.loc[index, '마지막배송일'] = dawn_list
                 
                 elif deliv_selection == '일반배송':
-                    normal_list = normal_delivery_last(product, deliv_start, deliv_selection)
+                    normal_list = normal_delivery_last(product, deliv_start)
                     d_f.loc[index, '마지막배송일'] = normal_list
                     
                 elif deliv_selection == '직접배송':
-                        direct_list = direct_delivery_last(product, deliv_start, deliv_selection)
+                        direct_list = direct_delivery_last(product, deliv_start)
                         d_f.loc[index, '마지막배송일'] = direct_list
                         
         else:
