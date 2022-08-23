@@ -1260,7 +1260,7 @@ def total_uniformize(p_d, naver_path):
     d_f = split_delivery_options(d_f)
     d_f['결제요일'] = d_f['결제일'].apply(lambda x : change(x))
     d_f = d_f.reset_index(drop=True)
-    d_f = get_deliv_start_day(d_f)
+    d_f = get_deliv_start_day(d_f,holiday_dataframe)
     d_f = get_deliv_last_day(d_f)
     d_f = resort_new_columns(d_f)
     return d_f
