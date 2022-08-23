@@ -1095,15 +1095,15 @@ def get_deliv_start_day(d_f,holiday_dataframe):
         if deliv_selection == '새벽배송':
             delivery_start = dawn_delivery_start(pay_day, holiday_dataframe)
             for index in d_f[d_f['결제일']==pay_day].index:
-                d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')
+                d_f.loc[index, '배송시작일'] = delivery_start
         elif deliv_selection == '일반배송':
-            delivery_start = normal_delivery_start(pay_day)
+            delivery_start = normal_delivery_start(pay_day, holiday_dataframe)
             for index in d_f[d_f['결제일']==pay_day].index:
-                d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')        
+                d_f.loc[index, '배송시작일'] = delivery_start
         elif deliv_selection == '직접배송':
-            delivery_start = direct_delivery_start(pay_day)
+            delivery_start = direct_delivery_start(pay_day, holiday_dataframe)
             for index in d_f[d_f['결제일']==pay_day].index:
-                d_f.loc[index, '배송시작일'] = delivery_start.strftime('%Y-%m-%d-%A')         
+                d_f.loc[index, '배송시작일'] = delivery_start
     return d_f
 
 
