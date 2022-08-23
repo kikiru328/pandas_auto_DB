@@ -265,7 +265,7 @@ def dawn_delivery_start(pay_time, holiday_dataframe):
     """
     day = pay_time.weekday()      
     dawn_holiday_query_str = "dateName == ['설날', '추석']"
-    holiday_list = holiday_dataframe.query(dawn_holiday_query_str).dateName.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
+    holiday_list = holiday_dataframe.query(dawn_holiday_query_str).locdate.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
     
     
     def mon_payment(pay_time):
