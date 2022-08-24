@@ -1157,44 +1157,82 @@ def normal_delivery_last(product, deliv_start):
     return last_deliv_day
 
 
-def dawn_delivery_last(product, deliv_start):    
-    days = int(product[-3:-1])
+def dawn_delivery_last(product, deliv_start,holiday_dataframe):    
+    dawn_holiday_query_str = "dateName == ['설날', '추석']"
+    holiday_list = holiday_dataframe.query(dawn_holiday_query_str).locdate.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
     deliv_list = []
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
     
-    i = 0
-    
-    while len(deliv_list) < days:
-        if len(deliv_list) == 0:
-            deliv_list.append(deliv_start)  
-            
-            if deliv_start.weekday() == 0: # if monday 
-                deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)) # append Wednesday
-                i += 1
-            elif deliv_start.weekday() == 1: # if tuesday
-                deliv_list.append(deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i)) # append thursday
-                i += 1
-            else: # not monday and tuesday (in wendesday, thuresday)
-                i += 1
-                
-        else:
-            if (deliv_start.weekday() == 0) or (deliv_start.weekday() == 2):
-                deliv_list.append(deliv_start + dt.timedelta(days=0-deliv_start.weekday(), weeks=i))
-                if len(deliv_list) == days:
-                    break
-                deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i))
-                i += 1
-                
-            elif (deliv_start.weekday() == 1) or (deliv_start.weekday() == 3):
-            
-                deliv_list.append(deliv_start + dt.timedelta(days=1-deliv_start.weekday(), weeks=i))
-                if len(deliv_list) == days:
-                    break
-                deliv_list.append(deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i))
-                i += 1                
-                
-    last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
-    return last_deliv_day
+    if product == '[윤식단][정기] 1일 2식 1일':
+        deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A'))
+        last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+        
+    else:
+        days = int(product[-3:-1])
+        i = 0
+        while len(deliv_list) < days:
+            if len(deliv_list) == 0:
+                deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A'))  # Append delivery start days
+                if deliv_start.weekday() == 0: # if monday starts
+                    add_day = (deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
+                    if add_day in holiday_list:
+                        i += 1 # Pass
+                    else:
+                        deliv_list.append(add_day) # add Wednesday
+                        i += 1
+                    
+                elif deliv_start.weekday() == 1: # if tuesday starts
+                    add_day = (deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
+                    if add_day in holiday_list:
+                        i += 1 # Pass
+                    else:
+                        deliv_list.append(add_day) # add Thursday
+                        i += 1
+                        
+                else: # not start on monday and tuesday (on wendesday, thuresday)
+                    i += 1
+                    
+            else:
+                if (deliv_start.weekday() == 0) or (deliv_start.weekday() == 2):
+                    add_day = (deliv_start + dt.timedelta(days=0-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
+                    # print(add_day)
+                    if add_day in holiday_list:
+                        pass
+                    else:
+                        deliv_list.append(add_day) # add Monday
+
+                    if len(deliv_list) == days:  # Break while loop
+                        break
+                    
+                    add_day = (deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
+                    if add_day in holiday_list:
+                        i += 1
+                    else:
+                        deliv_list.append(add_day) # add Wednesday
+                        i += 1
+                    
+                elif (deliv_start.weekday() == 1) or (deliv_start.weekday() == 3):
+                    add_day = (deliv_start + dt.timedelta(days=1-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
+                    if add_day in holiday_list:
+                        pass
+                    else:
+                        deliv_list.append(add_day) # add Tuesday
+                    if len(deliv_list) == days:  # Break while loop
+                        break
+                    
+                    add_day = (deliv_start + dt.timedelta(days=3-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
+                    if add_day in holiday_list:
+                        i += 1
+                    else:
+                        deliv_list.append(add_day) # add Thursday
+                        i += 1               
+                    
+        last_deliv_day = deliv_list[-1]
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+    return deliv_list, last_deliv_day, end_subs_day
 
 
 def get_deliv_last_day(d_f):
