@@ -1107,29 +1107,63 @@ def get_deliv_start_day(d_f,holiday_dataframe):
     return d_f
 
 
-def direct_delivery_last(product, deliv_start):    
-    days = int(product[-3:-1])
+def direct_delivery_last(product, deliv_start, holiday_dataframe):
+    holiday_list = holiday_dataframe.locdate.to_list() # 대체공휴일 포함 
     deliv_list = []
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
-    
-    i = 0
-    while len(deliv_list) < days:
-        if len(deliv_list) == 0:
-            deliv_list.append(deliv_start)  
-            if deliv_start.weekday() == 0: # if monday 
-                deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)) # append wednesday 
-                i += 1
-            else:
-                i += 1
+
+    if product == '[윤식단][정기] 1일 2식 1일':
+        deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A')) # Add delivery start date
+        last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+        
+    elif product == '[윤식단][단품] 닭고야/어니스트':
+        deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A')) # Add delivery start date
+        last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
                 
-        deliv_list.append(deliv_start + dt.timedelta(days=0-deliv_start.weekday(), weeks=i))
-        if len(deliv_list) == days:
-            break
-        deliv_list.append(deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i))
-        i += 1
-    
-    last_deliv_day = deliv_list[-1].strftime('%Y-%m-%d-%A')
-    return last_deliv_day
+    else:
+        days = int(product[-3:-1])
+        i = 0
+        while len(deliv_list) < days: # Condition 
+            if len(deliv_list) == 0: # For start
+                deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A'))  # Append delivery start days
+                
+                if deliv_start.weekday() == 0: # if monday start
+                    add_day = (deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A') # this week wednesday delivery 
+                    
+                    if add_day in holiday_list:
+                        i += 1 # Pass
+                    else:
+                        deliv_list.append(add_day) # add Wednesday
+                        i += 1
+                        
+                else: # not start on tuesday
+                    i += 1
+                    
+            else: # start on Wednesday
+                add_day = (deliv_start + dt.timedelta(days=0-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A') # next week monday delivery
+                if add_day in holiday_list:
+                    pass
+                else:
+                    deliv_list.append(add_day) # add monday
+                    
+                if len(deliv_list) == days:  # Break while loop
+                    break
+                
+                add_day = (deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A') # next week wednesday delivery
+                if add_day in holiday_list:
+                    i += 1
+                else:
+                    deliv_list.append(add_day) # add thursday
+                    i += 1          
+        last_deliv_day = deliv_list[-1]
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+    return deliv_list, last_deliv_day, end_subs_day
+
     
     
 def normal_delivery_last(product, deliv_start, holiday_dataframe):
@@ -1142,6 +1176,11 @@ def normal_delivery_last(product, deliv_start, holiday_dataframe):
         last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
         last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
         end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+    elif product == '[윤식단][단품] 닭고야/어니스트':
+        deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A')) # Add delivery start date
+        last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')        
     else:
         days = int(product[-3:-1])
         i = 0
@@ -1194,7 +1233,11 @@ def dawn_delivery_last(product, deliv_start,holiday_dataframe):
         last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
         last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
         end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
-        
+    elif product == '[윤식단][단품] 닭고야/어니스트':
+        deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A')) # Add delivery start date
+        last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
+        last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
+        end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')        
     else:
         days = int(product[-3:-1])
         i = 0
@@ -1261,32 +1304,32 @@ def dawn_delivery_last(product, deliv_start,holiday_dataframe):
     return deliv_list, last_deliv_day, end_subs_day
 
 
-def get_deliv_last_day(d_f):
-    d_f['마지막배송일'] = ''
-    for order_id, product, deliv_start, deliv_selection in zip(d_f['주문번호'], d_f['상품명'], d_f['배송시작일'], d_f['배송방법 고객선택']):
-        if '[정기]' in product:
-            if product == '[윤식단][정기] 1일 2식 1일':
-                for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
-                    d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
+# def get_deliv_last_day(d_f):
+#     d_f['마지막배송일'] = ''
+#     for order_id, product, deliv_start, deliv_selection in zip(d_f['주문번호'], d_f['상품명'], d_f['배송시작일'], d_f['배송방법 고객선택']):
+#         if '[정기]' in product:
+#             if product == '[윤식단][정기] 1일 2식 1일':
+#                 for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
+#                     d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
                     
-            else:        
-                for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
-                    if deliv_selection == '새벽배송':
-                        dawn_list = dawn_delivery_last(product, deliv_start)
-                        d_f.loc[index, '마지막배송일'] = dawn_list
+#             else:        
+#                 for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
+#                     if deliv_selection == '새벽배송':
+#                         dawn_list = dawn_delivery_last(product, deliv_start)
+#                         d_f.loc[index, '마지막배송일'] = dawn_list
                     
-                    elif deliv_selection == '일반배송':
-                        normal_list = normal_delivery_last(product, deliv_start)
-                        d_f.loc[index, '마지막배송일'] = normal_list
+#                     elif deliv_selection == '일반배송':
+#                         normal_list = normal_delivery_last(product, deliv_start)
+#                         d_f.loc[index, '마지막배송일'] = normal_list
                         
-                    elif deliv_selection == '직접배송':
-                            direct_list = direct_delivery_last(product, deliv_start)
-                            d_f.loc[index, '마지막배송일'] = direct_list
+#                     elif deliv_selection == '직접배송':
+#                             direct_list = direct_delivery_last(product, deliv_start)
+#                             d_f.loc[index, '마지막배송일'] = direct_list
                         
-        else:
-            for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:  
-                d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
-    return d_f
+#         else:
+#             for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:  
+#                 d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
+#     return d_f
 
 
 def resort_new_columns(d_f):
