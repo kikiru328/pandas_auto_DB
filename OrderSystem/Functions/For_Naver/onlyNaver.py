@@ -1176,6 +1176,7 @@ def normal_delivery_last(product, deliv_start, holiday_dataframe):
         last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
         last_deliv_day_timstamp = dt.datetime.strptime(last_deliv_day, '%Y-%m-%d-%A')
         end_subs_day = (last_deliv_day_timstamp + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+        
     elif product == '[윤식단][단품] 닭고야/어니스트':
         deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A')) # Add delivery start date
         last_deliv_day = deliv_start.strftime('%Y-%m-%d-%A')
@@ -1244,7 +1245,7 @@ def dawn_delivery_last(product, deliv_start,holiday_dataframe):
         while len(deliv_list) < days:
             if len(deliv_list) == 0:
                 deliv_list.append(deliv_start.strftime('%Y-%m-%d-%A'))  # Append delivery start days
-                if deliv_start.weekday() == 0: # if monday starts
+                if deliv_start.weekday() == 0: # if monday starts 
                     add_day = (deliv_start + dt.timedelta(days=2-deliv_start.weekday(), weeks=i)).strftime('%Y-%m-%d-%A')
                     if add_day in holiday_list:
                         i += 1 # Pass
