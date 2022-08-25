@@ -1317,7 +1317,7 @@ def get_delivery_schedule(d_f):
                 deliv_list, last_deliv_day, end_subs_day = get_direct_delivery_schedule(product, deliv_start, holiday_dataframe)    
             d_f.at[index, '배송일자리스트'] = str(deliv_list)
             d_f.loc[index, '마지막배송일'] = last_deliv_day
-            d_f.loc[index, '정기구독종료'] = end_subs_day                
+            d_f.loc[index, '식단종료일'] = end_subs_day                
     return d_f
 
 
@@ -1336,7 +1336,8 @@ def resort_new_columns(d_f):
     '고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타', '옵션정보', '상품가격',
     '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '배송지',
     '우편번호', '배송방법(구매자 요청)', '배송방법 고객선택', '배송방법', '배송속성', '택배사',
-    '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '마지막배송일', '공동현관 출입비밀번호','배송메세지']
+    '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '배송일자리스트', '마지막배송일',
+    '식단종료일', '공동현관 출입비밀번호','배송메세지']
     d_f = d_f[new_col]
     return d_f
 
