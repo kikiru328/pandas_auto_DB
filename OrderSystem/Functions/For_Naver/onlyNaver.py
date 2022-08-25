@@ -252,7 +252,8 @@ def holiday_df(holiday_json_path):
 
 holiday_dataframe = holiday_df(holiday_json_path)
 
-def dawn_delivery_start(pay_time, holiday_dataframe):
+
+def get_dawn_delivery_start_date(pay_time, holiday_dataframe):
     """
     True : 17시 이후 > 다음 요일 배송 시스템으로 적용
     False : 17시 이전 > 현재 요일 배송 시스템으로 적용
@@ -526,7 +527,7 @@ def dawn_delivery_start(pay_time, holiday_dataframe):
         return sun_payment(pay_time, holiday_list)
     
 
-def normal_delivery_start(pay_time, holiday_dataframe):
+def get_normal_delivery_start_date(pay_time, holiday_dataframe):
     """
     True : 17시 이후 > 다음 요일 배송 시스템으로 적용
     False : 17시 이전 > 현재 요일 배송 시스템으로 적용
@@ -804,7 +805,7 @@ def normal_delivery_start(pay_time, holiday_dataframe):
         return sun_payment(pay_time, holiday_list)
     
         
-def direct_delivery_start(pay_time, holiday_dataframe):
+def get_direct_delivery_start_date(pay_time, holiday_dataframe):
     """
     True : 17시 이후 > 다음 요일 배송 시스템으로 적용
     False : 17시 이전 > 현재 요일 배송 시스템으로 적용
@@ -1090,24 +1091,24 @@ def direct_delivery_start(pay_time, holiday_dataframe):
         return sun_payment(pay_time, holiday_list)
     
 
-def get_deliv_start_day(d_f,holiday_dataframe):
+def get_deliv_start_date(d_f,holiday_dataframe):
     for pay_day, deliv_selection in zip(d_f.결제일.to_list(), d_f['배송방법 고객선택'].to_list()):
         if deliv_selection == '새벽배송':
-            delivery_start = dawn_delivery_start(pay_day, holiday_dataframe)
+            delivery_start = get_dawn_delivery_start_date(pay_day, holiday_dataframe)
             for index in d_f[d_f['결제일']==pay_day].index:
                 d_f.loc[index, '배송시작일'] = delivery_start
         elif deliv_selection == '일반배송':
-            delivery_start = normal_delivery_start(pay_day, holiday_dataframe)
+            delivery_start = get_normal_delivery_start_date(pay_day, holiday_dataframe)
             for index in d_f[d_f['결제일']==pay_day].index:
                 d_f.loc[index, '배송시작일'] = delivery_start
         elif deliv_selection == '직접배송':
-            delivery_start = direct_delivery_start(pay_day, holiday_dataframe)
+            delivery_start = get_direct_delivery_start_date(pay_day, holiday_dataframe)
             for index in d_f[d_f['결제일']==pay_day].index:
                 d_f.loc[index, '배송시작일'] = delivery_start
     return d_f
 
 
-def direct_delivery_last(product, deliv_start, holiday_dataframe):
+def get_direct_delivery_schedule(product, deliv_start, holiday_dataframe):
     holiday_list = holiday_dataframe.locdate.to_list() # 대체공휴일 포함 
     deliv_list = []
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
@@ -1166,7 +1167,7 @@ def direct_delivery_last(product, deliv_start, holiday_dataframe):
 
     
     
-def normal_delivery_last(product, deliv_start, holiday_dataframe):
+def get_normal_delivery_schedule(product, deliv_start, holiday_dataframe):
     holiday_list = holiday_dataframe.locdate.to_list() # 대체공휴일 포함 
     deliv_list = []
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
@@ -1223,7 +1224,7 @@ def normal_delivery_last(product, deliv_start, holiday_dataframe):
 
 
 
-def dawn_delivery_last(product, deliv_start,holiday_dataframe):    
+def get_dawn_delivery_schedule(product, deliv_start,holiday_dataframe):    
     dawn_holiday_query_str = "dateName == ['설날', '추석']"
     holiday_list = holiday_dataframe.query(dawn_holiday_query_str).locdate.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
     deliv_list = []
@@ -1305,32 +1306,19 @@ def dawn_delivery_last(product, deliv_start,holiday_dataframe):
     return deliv_list, last_deliv_day, end_subs_day
 
 
-# def get_deliv_last_day(d_f):
-#     d_f['마지막배송일'] = ''
-#     for order_id, product, deliv_start, deliv_selection in zip(d_f['주문번호'], d_f['상품명'], d_f['배송시작일'], d_f['배송방법 고객선택']):
-#         if '[정기]' in product:
-#             if product == '[윤식단][정기] 1일 2식 1일':
-#                 for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
-#                     d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
-                    
-#             else:        
-#                 for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:    
-#                     if deliv_selection == '새벽배송':
-#                         dawn_list = dawn_delivery_last(product, deliv_start)
-#                         d_f.loc[index, '마지막배송일'] = dawn_list
-                    
-#                     elif deliv_selection == '일반배송':
-#                         normal_list = normal_delivery_last(product, deliv_start)
-#                         d_f.loc[index, '마지막배송일'] = normal_list
-                        
-#                     elif deliv_selection == '직접배송':
-#                             direct_list = direct_delivery_last(product, deliv_start)
-#                             d_f.loc[index, '마지막배송일'] = direct_list
-                        
-#         else:
-#             for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:  
-#                 d_f.loc[index, '마지막배송일'] = d_f.loc[index, '배송시작일']
-#     return d_f
+def get_delivery_schedule(d_f):
+    for order_id, product, deliv_start, deliv_selection in zip(d_f.주문번호, d_f.상품명, d_f.배송시작일, d_f['배송방법 고객선택']):
+        for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
+            if deliv_selection == '새벽배송':
+                deliv_list, last_deliv_day, end_subs_day = get_dawn_delivery_schedule(product, deliv_start, holiday_dataframe)    
+            elif deliv_selection == '일반배송':
+                deliv_list, last_deliv_day, end_subs_day = get_normal_delivery_schedule(product, deliv_start, holiday_dataframe)    
+            elif deliv_selection == '직접배송':
+                deliv_list, last_deliv_day, end_subs_day = get_direct_delivery_schedule(product, deliv_start, holiday_dataframe)    
+            d_f.at[index, '배송일자리스트'] = str(deliv_list)
+            d_f.loc[index, '마지막배송일'] = last_deliv_day
+            d_f.loc[index, '정기구독종료'] = end_subs_day                
+    return d_f
 
 
 def resort_new_columns(d_f):
@@ -1368,8 +1356,12 @@ def total_uniformize(p_d, naver_path):
     d_f = split_delivery_options(d_f)
     d_f['결제요일'] = d_f['결제일'].apply(lambda x : change(x))
     d_f = d_f.reset_index(drop=True)
-    d_f = get_deliv_start_day(d_f,holiday_dataframe)
-    d_f = get_deliv_last_day(d_f)
+    d_f = get_deliv_start_date(d_f,holiday_dataframe)
+    d_f = get_delivery_schedule(d_f)
     d_f = resort_new_columns(d_f)
     return d_f
 
+
+import ast
+def list2str(delivery_list):
+    return ast.literal_eval(delivery_list)
