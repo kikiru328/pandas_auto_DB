@@ -38,7 +38,7 @@ def read_naver_table(naver_path):
     need_columns = [
         '상품주문번호', '주문번호', '배송방법(구매자 요청)', '배송방법', '택배사', '송장번호',
         '발송일', '구매자명', '수취인명', '상품명', '상품종류', '옵션정보', '수량', '옵션가격',
-        '상품가격', '상품별 총 주문금액', '기본배송지','상세배송지', '구매자연락처', '배송메세지', '정산예정금액',
+        '상품가격', '상품별 총 주문금액', '배송지', '구매자연락처', '배송메세지', '정산예정금액',
         '수취인연락처1', '배송속성', '배송희망일', '결제일', '구매자ID', '우편번호']
     columns = d_f.columns.to_list()
     drop_columns = [x for x in columns if x not in need_columns]
@@ -1180,7 +1180,7 @@ def get_direct_delivery_schedule(product, deliv_start, holiday_dataframe):
     
     
 def get_normal_delivery_schedule(product, deliv_start, holiday_dataframe):
-    holiday_list = holiday_dataframe.locdate.to_list() # 대체공휴일 포함
+    holiday_list = holiday_dataframe.locdate.to_list() # 대체공휴일 포함 
     def add_list(holiday_list):
         add_ = []
         for holiday in holiday_list:
@@ -1358,7 +1358,7 @@ def resort_new_columns(d_f):
     '상품주문번호', '주문번호', '플랫폼', '구매자명', '구매자ID', '구매자연락처', '결제일',
     '상품명','상품종류','수량','단품옵션','세트옵션','옵션유무', '단백질추가', '탄수화물추가',
     '고구마+현미밥', '현미밥만', '콩제외', '당근제외', '오이제외', '기타', '옵션정보', '상품가격',
-    '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '기본배송지','상세배송지',
+    '옵션가격', '상품별 총 주문금액', '정산예정금액', '수취인명', '수취인연락처1', '배송지',
     '우편번호', '배송방법(구매자 요청)', '배송방법 고객선택', '배송방법', '배송속성', '택배사',
     '송장번호', '발송일', '배송희망일', '결제요일', '배송시작일', '배송일자리스트', '마지막배송일',
     '식단종료일', '공동현관 출입비밀번호','배송메세지']
