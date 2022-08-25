@@ -179,11 +179,17 @@ def split_product_options(d_f):
     for order_id in option_df['주문번호'].to_list():
         main_idx = main_df[main_df['주문번호']==order_id].index[0]
         opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
+        opt_count = list(option_df[option_df['주문번호'] == order_id]['수량'])
+        opt_list_count = []
+        for option, count in zip(opt_list, opt_count):
+            count_str = ' X ' +str(count)
+            opt_list_count.append(option+count_str)
+        
         d_f.loc[main_idx,'옵션유무'] = 'O'
         add = []
         change = []
         pack = []
-        for opt in opt_list:
+        for opt in opt_list_count:
             if '단백질' in opt:
                 add.append(opt)
             elif '탄수화물' in opt:
