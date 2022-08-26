@@ -1391,7 +1391,7 @@ def total_uniformize(p_d, naver_path):
     d_f = resort_new_columns(d_f)
     return d_f
 
-
+   
 import ast
 def list2str(delivery_list):
     return ast.literal_eval(delivery_list)
