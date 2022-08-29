@@ -1378,6 +1378,120 @@ def normal_get_recipe(menu_list, count):
     return recipe_df, total_ingredient
         
 
+def option_recipe_test(client_df,menu_name):
+    """
+    고구마+현미밥 은 따로 처리함.
+    단백질 추가시 *0.5
+    탄수화물 추가시 *0.5
+    고구마, 현미밥 제조량 동일
+
+    Args:
+        client_df (_type_): _description_
+        menu_name (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+        
+    with open(f'menu/{menu_name}.json','r') as recipe_file:
+        recipe = json.load(recipe_file)
+
+    main_recipe = recipe['레시피']['메인재료']
+    carbon_recipe = recipe['레시피']['탄수화물']
+    toping_recipe = recipe['레시피']['토핑재료']
+
+
+    main_ingredients = []
+    carbon_ingredients = []
+    toping_ingredients = []
+
+    for main_ind in range(len(list(main_recipe))):
+        main_ingredients.append(list(main_recipe[main_ind].keys())[0])
+
+    for car_ind in range(len(list(carbon_recipe))):
+        carbon_ingredients.append(list(carbon_recipe[car_ind].keys())[0])
+        
+    for top_ind in range(len(list(toping_recipe))):
+        toping_ingredients.append(list(toping_recipe[top_ind].keys())[0])
+
+
+    client_index = client_df.index[0]
+
+    remove_option_columns = ['콩제외','당근제외','오이제외','기타','배송메세지']
+    remove_options = []
+    for rv_col in remove_option_columns:
+        if client_df[rv_col][client_index] != 'X':
+            if '제외' in rv_col:
+                rev = rv_col.split('제외')[0]
+            remove_options.append(rev)
+
+
+    menu_remove_list = main_ingredient_remove(main_ingredients, remove_options)
+
+    if len(menu_remove_list) != 0:
+        recipe_df = pd.DataFrame()
+        total_ingredients = main_ingredients + carbon_ingredients + toping_ingredients
+        for ingredient_name in total_ingredients:
+            recipe_df.loc[menu_name, f'ingredient_name'] = 0
+            
+    else:
+        recipe_df = pd.DataFrame()
+        for main_ingredient in main_recipe:
+            for ingredient_name in main_ingredient.keys():
+                amount = main_ingredient[ingredient_name]['양']
+                recipe_df.loc[menu_name, ingredient_name] = amount   
+                
+        for carbon_ingredient in carbon_recipe:
+            for ingredient_name in carbon_ingredient.keys():
+                amount = carbon_ingredient[ingredient_name]['양']
+                recipe_df.loc[menu_name, ingredient_name] = amount     
+                    
+        toping_remove_list = toping_ingredient_remove(toping_ingredients, remove_options)
+        if len(toping_remove_list) != 0:
+            for toping_dict in toping_recipe:
+                for toping_ingredient in toping_remove_list:
+                    if toping_ingredient == list(toping_dict.keys())[0]:
+                        amount = toping_dict[toping_ingredient]['양']
+                        recipe_df.loc[menu_name, toping_ingredient] = amount
+                    else:
+                        pass
+        else:
+            for toping_dict in toping_recipe:
+                for toping_ingredient in toping_dict.keys():
+                    amount = toping_dict[toping_ingredient]['양']
+                    recipe_df.loc[menu_name, toping_ingredient] = amount
+
+
+    if client_df.loc[client_index, '단백질추가'] != 'X':
+        add = int(client_df.loc[client_index, '단백질추가'].split('g')[0].split('단백질 ')[1])
+        if add == 50:
+            for main_ingredient in main_ingredients:
+                main_amount = recipe_df.loc[menu_name, main_ingredient]
+                recipe_df.loc[menu_name, main_ingredient] = main_amount * 1.5
+        elif add == 100:
+            for main_ingredient in main_ingredients:
+                main_amount = recipe_df.loc[menu_name, main_ingredient]
+                recipe_df.loc[menu_name, main_ingredient] = main_amount * 2.0
+                
+    if client_df.loc[client_index, '탄수화물추가'] != 'X':
+        add = int(client_df.loc[client_index, '탄수화물추가'].split('g')[0].split('탄수화물 ')[1])
+        if add == 50:
+            for carbon_ingredient in carbon_ingredients:
+                carbon_amount = recipe_df.loc[menu_name, carbon_ingredient]
+                recipe_df.loc[menu_name, carbon_ingredient] = carbon_amount * 1.5
+        elif add == 100:
+            for carbon_ingredient in carbon_ingredients:
+                carbon_amount = recipe_df.loc[menu_name, carbon_ingredient]
+                recipe_df.loc[menu_name, carbon_ingredient] = carbon_amount * 2.0
+                
+    if client_df.loc[client_index, '현미밥만'] != 'X':
+        recipe_df = recipe_df.rename(columns = {'고구마' : '현미밥'})
+    else:
+        pass
+    
+    return recipe_df            
+
+
 def get_delivery_schedule(d_f):
     for order_id, product, deliv_start, deliv_selection in zip(d_f.주문번호, d_f.상품명, d_f.배송시작일, d_f['배송방법 고객선택']):
         for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
