@@ -1335,6 +1335,49 @@ def get_dawn_delivery_schedule(product, deliv_start,holiday_dataframe):
     return deliv_list, last_deliv_day, end_subs_day
 
 
+def normal_get_recipe(menu_list, count):
+    recipe_df = pd.DataFrame()
+    for menu_name in menu_list:
+        with open(f'menu/{menu_name}.json','r') as recipe_file:
+            recipe = json.load(recipe_file)
+        # print(menu_name)
+        main_ingredients = recipe['레시피']['메인재료']
+        carbon_ingredients = recipe['레시피']['탄수화물']
+        toping_ingredients = recipe['레시피']['토핑재료']
+        for main_ingredient in main_ingredients: # devided main_ingredients
+            for ingredient_name in main_ingredient.keys(): # get main_ingredients name
+                amount = main_ingredient[ingredient_name]['양']  # amount for a potion - main_ingredient
+                total_amount = amount * count # amount for counts
+                                                                                    # unit = main_ingredient[ingredient_name]['단위']  # unit for a amount - main_ingredient
+                # recipe_df.loc[0,f'{ingredient_name}'] = str(total_amount) + unit
+                # recipe_df.loc[menu_name,f'{ingredient_name}'] = str(total_amount) + unit
+                recipe_df.loc[menu_name,f'{ingredient_name}'] = total_amount
+                
+        for carbon_ingredient in carbon_ingredients: # devided carbon_ingredients
+            for ingredient_name in carbon_ingredient: # get carbon_ingredients name
+                amount = carbon_ingredient[ingredient_name]['양']
+                total_amount = amount * count # amount for count
+                                                                                    # unit = carbon_ingredient[ingredient_name]['단위'] # unit for amount - carbon_ingredient
+                # recipe_df.loc[0,f'{ingredient_name}'] = str(total_amount) + unit            
+                # recipe_df.loc[menu_name,f'{ingredient_name}'] = str(total_amount) + unit
+                recipe_df.loc[menu_name,f'{ingredient_name}'] = total_amount
+        for toping_ingredient in toping_ingredients: # devided toping_ingredients
+            for ingredient_name in toping_ingredient: # get toping_ingredients name
+                amount = toping_ingredient[ingredient_name]['양']
+                total_amount = amount * count # amount for count
+                                                                                    # unit = toping_ingredient[ingredient_name]['단위'] # unit for amount - toping_ingredient
+                # recipe_df.loc[0,f'{ingredient_name}'] = str(total_amount) + unit        
+                # recipe_df.loc[menu_name,f'{ingredient_name}'] = str(total_amount) + unit    
+                recipe_df.loc[menu_name,f'{ingredient_name}'] = total_amount
+                
+                
+                
+    recipe_df = recipe_df.fillna(0)
+    total_ingredient = pd.DataFrame(recipe_df.T.sum(axis='columns').round(2))
+    total_ingredient = total_ingredient.rename(columns = {0:'total'})
+    return recipe_df, total_ingredient
+        
+
 def get_delivery_schedule(d_f):
     for order_id, product, deliv_start, deliv_selection in zip(d_f.주문번호, d_f.상품명, d_f.배송시작일, d_f['배송방법 고객선택']):
         for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:

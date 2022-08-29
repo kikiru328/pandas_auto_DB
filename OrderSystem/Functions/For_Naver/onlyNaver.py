@@ -11,8 +11,8 @@ import requests
 import json 
 from pandas import json_normalize
 holiday_json_path = './holiday_api.json'
-
-
+ 
+ 
 def apply_pandas(p_d):
     """
     Set options for printing pandas
@@ -23,7 +23,7 @@ def apply_pandas(p_d):
     p_d.set_option('display.max_columns', None)
     p_d.set_option('display.width', None)
     p_d.set_option('display.max_colwidth', None)
-
+  
 def read_naver_table(naver_path):
     """
     Read Naver smartstore excel.
