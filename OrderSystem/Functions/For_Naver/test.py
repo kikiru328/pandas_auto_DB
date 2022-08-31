@@ -11,7 +11,7 @@ import requests
 import json 
 from pandas import json_normalize
 holiday_json_path = './holiday_api.json'
-
+   
 
 def apply_pandas(p_d):
     """
@@ -1413,7 +1413,7 @@ def option_recipe_test(client_df,menu_name):
         
     for top_ind in range(len(list(toping_recipe))):
         toping_ingredients.append(list(toping_recipe[top_ind].keys())[0])
-
+  
 
     client_index = client_df.index[0]
 
@@ -1425,7 +1425,7 @@ def option_recipe_test(client_df,menu_name):
                 rev = rv_col.split('제외')[0]
             remove_options.append(rev)
 
-
+  
     menu_remove_list = main_ingredient_remove(main_ingredients, remove_options)
 
     if len(menu_remove_list) != 0:
