@@ -1431,7 +1431,7 @@ def prepare_ingredient_standard(standard_df):
                 recipe_df = pd.concat([recipe_df,client_recipe],axis=0)
                 recipe_df = recipe_df.fillna(0)
                         
-    standard_total_df = pd.DataFrame(recipe_df.T.sum(axis='columns').round(2))
+    standard_total_df = pd.DataFrame(recipe_df.T.sum(axis='columns').round(3))
     standard_total_df = standard_total_df.rename(columns = {0:'total'})
     return    standard_total_df
 
@@ -1478,6 +1478,32 @@ def normal_get_recipe(menu_list, count):
     total_ingredient = total_ingredient.rename(columns = {0:'total'})
     return recipe_df, total_ingredient
         
+
+def prepare_ingredient_standard_taste(standard_taste_df):
+    recipe_df = pd.DataFrame()
+    for index, std_index in enumerate(standard_taste_df.index):
+        product = standard_taste_df.loc[std_index, '상품명']
+        dining_count = int(product.split('] ')[1].split(' ')[1].split('식')[0]) 
+        client_recipe = pd.DataFrame()
+        for menu_name in menu_list[:2]:
+            with open(f'./menu/{menu_name}.json','r') as recipe_file:
+                recipe = json.load(recipe_file)
+            for type in ['메인재료','탄수화물','토핑재료']:
+                for ingredients in recipe['레시피'][type]:
+                    for ingredient_name in ingredients.keys():
+                        amount = ingredients[ingredient_name]['양']
+                        client_recipe.loc[menu_name, ingredient_name] = amount
+            client_recipe = client_recipe.fillna(0)
+        if index == 0:
+            recipe_df = client_recipe
+        else:
+            recipe_df = pd.concat([recipe_df,client_recipe],axis=0)
+            recipe_df = recipe_df.fillna(0)
+                
+    standard_taste_total_df = pd.DataFrame(recipe_df.T.sum(axis='columns').round(3))
+    standard_taste_total_df = standard_taste_total_df.rename(columns = {0:'total'})
+    return standard_taste_total_df
+
 
 def option_recipe_test(client_df,menu_name):
     """
