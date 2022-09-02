@@ -1507,7 +1507,7 @@ def prepare_ingredient_standard_taste(standard_taste_df):
 
 def prepare_ingredient_option(option_df):
     recipe_df = pd.DataFrame()
-    for index, opt_index in enumerate(option_df.iloc[[0,1,2]].index):
+    for index, opt_index in enumerate(option_df.index):
         product = option_df.loc[opt_index, '상품명']
         dining_count = int(product.split('] ')[1].split(' ')[1].split('식')[0])
         client_recipe = pd.DataFrame()
