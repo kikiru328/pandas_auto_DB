@@ -23,7 +23,7 @@ def apply_pandas(p_d):
     p_d.set_option('display.max_columns', None)
     p_d.set_option('display.width', None)
     p_d.set_option('display.max_colwidth', None)
-
+ 
 def read_naver_table(naver_path):
     """
     Read Naver smartstore excel.
