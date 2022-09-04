@@ -46,7 +46,7 @@ def read_naver_table(naver_path):
     d_f['플랫폼'] = '네이버'
     return d_f
 
-
+  
 def change_product_name_list(product_name):
     """
     Change product name for uniformed\
