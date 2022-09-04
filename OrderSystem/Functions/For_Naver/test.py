@@ -30,7 +30,7 @@ def read_naver_table(naver_path):
     delete header, reset columns
     Args:
         naver_path: naver_file path
-
+   
     Returns:
         dataframe: naver_df
     """
