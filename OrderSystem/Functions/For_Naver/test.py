@@ -11,7 +11,7 @@ import requests
 import json 
 from pandas import json_normalize
 holiday_json_path = './holiday_api.json'
-   
+    
 
 def apply_pandas(p_d):
     """
