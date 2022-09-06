@@ -145,7 +145,7 @@ def subs_remove_options(change, d_f, main_idx):
     return d_f
 
 
-def simple_select_options(pack, d_f, order_id, main_df, main_idx):
+def single_select_options(pack, d_f, order_id, main_df, main_idx):
     if len(pack) == 0:
         d_f.loc[main_idx, '단품옵션'] = np.nan
         d_f.loc[main_idx, '세트옵션'] = np.nan
@@ -197,31 +197,9 @@ def split_product_options(d_f):
                 
         d_f = subs_add_options(add,d_f,main_idx)
         d_f = subs_remove_options(change,d_f,main_idx)
-        d_f = simple_select_options(pack,d_f,order_id,main_df,main_idx)
+        d_f = single_select_options(pack,d_f,order_id,main_df,main_idx)
         d_f = d_f.fillna('X')
         d_f = d_f[d_f['상품종류']=='조합형옵션상품']
-    return d_f
-
-
-def split_delivery_options(d_f):
-    """
-    Split delivery option for simplify
-    Args:
-        d_f: main df
-
-    Returns:
-        d_f: main df
-    """
-    for order_id in d_f['상품주문번호']:
-        idx = d_f[d_f['상품주문번호']==order_id].index[0]
-        opt = d_f.loc[idx, '옵션정보']
-        for split_opt in opt.split(' / '):
-            if split_opt.startswith('공동현관'):
-                d_f.loc[idx, '공동현관 출입비밀번호'] = split_opt.split(': ')[1]
-            elif split_opt.startswith('배송방법'):
-                d_f.loc[idx, '배송방법 고객선택'] = split_opt.split(': ')[1][:4]
-            elif split_opt.startswith('상품선택'):
-                d_f.loc[idx, '단품옵션'] = split_opt.split(': ')[1]
     return d_f
 
 
@@ -238,14 +216,7 @@ def unify_table(p_d, naver_path):
     d_f = read_naver_table(naver_path)
     d_f = change_product_name_by_list(d_f)
     d_f = split_product_options(d_f)
-    d_f = split_delivery_options(d_f)
-    d_f['결제요일'] = d_f['결제일'].apply(lambda x : change(x))
-    d_f = d_f.reset_index(drop=True)
-    d_f = get_deliv_start_date(d_f,holiday_dataframe)
-    d_f = get_delivery_schedule(d_f)
-    d_f = resort_new_columns(d_f)
     return d_f
-    
         
     
     

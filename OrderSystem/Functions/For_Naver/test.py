@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import requests
-import json 
+import json
 from pandas import json_normalize
 holiday_json_path = './holiday_api.json'
          
@@ -24,13 +24,13 @@ def apply_pandas(p_d):
     p_d.set_option('display.width', None)
     p_d.set_option('display.max_colwidth', None)
  
+ 
 def read_naver_table(naver_path):
     """
     Read Naver smartstore excel.
     delete header, reset columns
     Args:
         naver_path: naver_file path
-   
     Returns:
         dataframe: naver_df
     """
@@ -49,7 +49,7 @@ def read_naver_table(naver_path):
   
 def change_product_name_list(product_name):
     """
-    Change product name for uniformed\
+    Change product name for uniformed
     Args:
         product_name (str): product name
 
@@ -142,7 +142,7 @@ def subs_remove_options(change, d_f, main_idx):
     return d_f
 
 
-def simple_select_options(pack, d_f, order_id, main_df, main_idx):
+def single_select_options(pack, d_f, order_id, main_df, main_idx):
     if len(pack) == 0:
         d_f.loc[main_idx, '단품옵션'] = np.nan
         d_f.loc[main_idx, '세트옵션'] = np.nan
@@ -201,7 +201,7 @@ def split_product_options(d_f):
                 
         d_f = subs_add_options(add,d_f,main_idx)
         d_f = subs_remove_options(change,d_f,main_idx)
-        d_f = simple_select_options(pack,d_f,order_id,main_df,main_idx)
+        d_f = single_select_options(pack,d_f,order_id,main_df,main_idx)
         d_f = d_f.fillna('X')
         d_f = d_f[d_f['상품종류']=='조합형옵션상품']
     return d_f
