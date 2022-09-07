@@ -1,4 +1,0 @@
-([('pyqt6',
-   '/Volumes/GoogleDrive/내 '
-   '드라이브/Enterprise/AGP/Auto_order_table/New/pyqtprogram/dist/pyqt6',
-   'EXECUTABLE')],)

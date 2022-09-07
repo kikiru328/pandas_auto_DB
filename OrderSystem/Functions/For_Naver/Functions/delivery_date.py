@@ -25,8 +25,8 @@ def holiday_df(holiday_json_path):
         key = json.load(api_key)
     api_key = key['holiday_api_key']
     
-    today = dt.datetime.today().strftime('%Y%m%d')
-    today_year = dt.datetime.today().year
+    today = dt.today().strftime('%Y%m%d')
+    today_year = dt.today().year
     key = api_key
     url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?_type=json&numOfRows=50&solYear=' + str(today_year) + '&ServiceKey=' + str(key)
     response = requests.get(url)
@@ -36,7 +36,7 @@ def holiday_df(holiday_json_path):
         dataframe = json_normalize(holidays_data)
         
     def change_date(x):
-        hx = dt.datetime.strptime(str(x), '%Y%m%d')
+        hx = dt.strptime(str(x), '%Y%m%d')
         hx = hx.strftime('%Y-%m-%d-%A')
         return hx 
     
@@ -1120,4 +1120,16 @@ def get_dawn_delivery_schedule(product, deliv_start,holiday_dataframe):
     return deliv_list, last_deliv_day, end_subs_day
 
 
-            
+def get_delivery_schedule(d_f):
+    for order_id, product, deliv_start, deliv_selection in zip(d_f.주문번호, d_f.상품명, d_f.배송시작일, d_f['배송방법 고객선택']):
+        for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
+            if deliv_selection == '새벽배송':
+                deliv_list, last_deliv_day, end_subs_day = get_dawn_delivery_schedule(product, deliv_start, holiday_dataframe)    
+            elif deliv_selection == '일반배송':
+                deliv_list, last_deliv_day, end_subs_day = get_normal_delivery_schedule(product, deliv_start, holiday_dataframe)    
+            elif deliv_selection == '직접배송':
+                deliv_list, last_deliv_day, end_subs_day = get_direct_delivery_schedule(product, deliv_start, holiday_dataframe)    
+            d_f.at[index, '배송일자리스트'] = str(deliv_list)
+            d_f.loc[index, '마지막배송일'] = last_deliv_day
+            d_f.loc[index, '식단종료일'] = end_subs_day                
+    return d_f            
