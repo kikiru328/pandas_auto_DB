@@ -1,7 +1,7 @@
 """
 Make Same Format table for Naver smartstore
-
-Returns:
+   
+Returns: 
     excel : uniformized excel file
 """
 import pandas as pd
