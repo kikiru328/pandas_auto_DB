@@ -8,10 +8,10 @@ def seperate_dataframe_for_recipe(d_f):
         d_f (_type_): _description_
     """
     subs_df_query = "상품명.str.contains('정기')"
-    subs_df = df.query(subs_df_query)
+    subs_df = d_f.query(subs_df_query)
 
     single_df_query = "상품명.str.contains('단품')"
-    single_df = df.query(single_df_query)
+    single_df = d_f.query(single_df_query)
 
     # seperate subs_df by options
     standard_df = subs_df[
@@ -258,8 +258,12 @@ def prepare_ingredient_option(option_df,menu_list):
     return option_total
 
 
-def prepare_ingredient_sw_r(sw_r_df, menu_list):
+def prepare_ingredient_sw_r(sw_r_df, menu_list,rice_check):
     recipe_df = pd.DataFrame()
+    menu_dict_with_rice = {}
+    for menu_name, rice in zip(menu_list, rice_check):
+        menu_dict_with_rice.update({menu_name:rice})
+        
     for index, opt_index in enumerate(sw_r_df.index):
         product = sw_r_df.loc[opt_index, '상품명']
         dining_count = int(product.split('] ')[1].split(' ')[1].split('식')[0])
@@ -369,4 +373,4 @@ def prepare_ingredient_sw_r(sw_r_df, menu_list):
     option_total_df = pd.DataFrame(recipe_df.T.sum(axis='columns').round(3))
     option_total_df = option_total_df.rename(columns = {0:'total'})
     option_total = option_total_df.T.groupby(axis=1, level=0).sum()
-    return option_total                   
+    return option_total                 
