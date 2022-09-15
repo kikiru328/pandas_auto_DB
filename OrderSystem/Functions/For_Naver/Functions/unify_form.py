@@ -217,6 +217,27 @@ class change_option:
             d_f = d_f[d_f['상품종류']=='조합형옵션상품']
         return d_f
 
+class change_delivery_info:
+    def split_delivery_options(d_f):
+        """
+        Split delivery option for simplify
+        Args:
+            d_f: main df
+
+        Returns:
+            d_f: main df
+        """
+        for order_id in d_f['상품주문번호']:
+            idx = d_f[d_f['상품주문번호']==order_id].index[0]
+            opt = d_f.loc[idx, '옵션정보']
+            for split_opt in opt.split(' / '):
+                if split_opt.startswith('공동현관'):
+                    d_f.loc[idx, '공동현관 출입비밀번호'] = split_opt.split(': ')[1]
+                elif split_opt.startswith('배송방법'):
+                    d_f.loc[idx, '배송방법 고객선택'] = split_opt.split(': ')[1][:4]
+                elif split_opt.startswith('상품선택'):
+                    d_f.loc[idx, '단품옵션'] = split_opt.split(': ')[1]
+        return d_f
 
 def unify_table(p_d, naver_path, product_name_json_file, option_info_json_file):
     """
@@ -231,6 +252,7 @@ def unify_table(p_d, naver_path, product_name_json_file, option_info_json_file):
     d_f = read_naver_table(naver_path)
     d_f = change_product.change_product_name(d_f, product_name_json_file)
     d_f = change_option.split_options_by_product(d_f, option_info_json_file)
+    d_f = change_delivery_info.split_delivery_options(d_f)
     return d_f
         
     
