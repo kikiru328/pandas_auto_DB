@@ -9,15 +9,12 @@ import requests
 from datetime import datetime as dt
 import json
 from pandas import json_normalize
+
 holiday_json_path = './holiday_api.json'
 
 def read_uniformed_dataframe(unify_form_path):
     d_f = pd.read_excel(unify_form_path)
     return d_f
-
-
-def change_date_format(x):
-    return x.strftime('%Y-%m-%d %H:%M %A')
 
 
 def holiday_df(holiday_json_path,custom_holiday):
@@ -1127,7 +1124,10 @@ def get_dawn_delivery_schedule(product, deliv_start,holiday_dataframe):
     return deliv_list, last_deliv_day, end_subs_day
 
 
-def get_delivery_schedule(d_f):
+def get_delivery_schedule(d_f,holiday_json_path, custom_holiday):
+    
+    holiday_dataframe = holiday_df(holiday_json_path, custom_holiday)
+    d_f = get_deliv_start_date(d_f,holiday_dataframe)
     for order_id, product, deliv_start, deliv_selection in zip(d_f.주문번호, d_f.상품명, d_f.배송시작일, d_f['배송방법 고객선택']):
         for index in d_f[(d_f['주문번호']==order_id) & (d_f['상품명']==product)].index:
             if deliv_selection == '새벽배송':
