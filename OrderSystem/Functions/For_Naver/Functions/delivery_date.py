@@ -62,7 +62,7 @@ def get_dawn_delivery_start_date(pay_time, holiday_dataframe):
         _type_: bool. True/False
     """
     day = pay_time.weekday()      
-    dawn_holiday_query_str = "dateName == ['설날', '추석']"
+    dawn_holiday_query_str = "dateName == ['설날', '추석', '휴일']"
     holiday_list = holiday_dataframe.query(dawn_holiday_query_str).locdate.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
     
     def mon_payment(pay_time, holiday_list):
@@ -1043,7 +1043,7 @@ def get_normal_delivery_schedule(product, deliv_start, holiday_dataframe):
 
 
 def get_dawn_delivery_schedule(product, deliv_start,holiday_dataframe):    
-    dawn_holiday_query_str = "dateName == ['설날', '추석']"
+    dawn_holiday_query_str = "dateName == ['설날', '추석', '휴일']"
     holiday_list = holiday_dataframe.query(dawn_holiday_query_str).locdate.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
     deliv_list = []
     deliv_start = dt.datetime.strptime(deliv_start, '%Y-%m-%d-%A')
@@ -1139,4 +1139,26 @@ def get_delivery_schedule(d_f,holiday_json_path, custom_holiday):
             d_f.at[index, '배송일자리스트'] = str(deliv_list)
             d_f.loc[index, '마지막배송일'] = last_deliv_day
             d_f.loc[index, '식단종료일'] = end_subs_day                
-    return d_f            
+    return d_f
+
+
+def get_holiday_schedule(holiday_json_path, custom_holiday):
+    holiday_dataframe = holiday_df(holiday_json_path, custom_holiday)
+    holiday_list = holiday_dataframe.locdate.to_list() # 대체공휴일 포함 
+    def add_list(holiday_list):
+        add_ = []
+        for holiday in holiday_list:
+            # print(holiday)
+            holiday = dt.datetime.strptime(holiday, '%Y-%m-%d-%A')
+            # print(holiday)
+            holiday_1 = (holiday + dt.timedelta(days=1)).strftime('%Y-%m-%d-%A')
+            add_.append(holiday_1)
+        add_holiday_list = sorted(list(set(holiday_list + add_)))    
+
+        return add_holiday_list
+    direct_holiday_list = add_list(holiday_list) # 전체 + 전체_+1일    
+    normal_holiday_list = add_list(holiday_list)
+    
+    dawn_holiday_query_str = "dateName == ['설날', '추석', '휴일']"
+    holiday_list = holiday_dataframe.query(dawn_holiday_query_str).locdate.to_list() # 설날 / 추석 연휴 (대체공휴일 제외)
+    
