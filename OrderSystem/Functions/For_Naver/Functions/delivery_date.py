@@ -20,12 +20,11 @@ def change_date_format(x):
     return x.strftime('%Y-%m-%d %H:%M %A')
 
 
-def holiday_df(holiday_json_path):
+def holiday_df(holiday_json_path,custom_holiday):
     with open(holiday_json_path, 'r') as api_key:
         key = json.load(api_key)
     api_key = key['holiday_api_key']
-    
-    today = dt.today().strftime('%Y%m%d')
+
     today_year = dt.today().year
     key = api_key
     url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?_type=json&numOfRows=50&solYear=' + str(today_year) + '&ServiceKey=' + str(key)
@@ -41,6 +40,16 @@ def holiday_df(holiday_json_path):
         return hx 
     
     dataframe['locdate'] = dataframe['locdate'].apply(lambda x : change_date(x))
+    dataframe = dataframe.drop(columns=["dateKind","isHoliday","seq"])
+    
+    def custom_change_date(x):
+        hx = x.strftime('%Y-%m-%d-%A')
+        return hx
+    
+    custom_delivery_schedule = pd.read_excel(custom_holiday)
+    custom_delivery_schedule['locdate'] = custom_delivery_schedule['locdate'].apply(lambda x : custom_change_date(x))
+    holiday_dataframe = pd.concat([holiday_dataframe, custom_delivery_schedule],axis=0,ignore_index=True)
+    holiday_dataframe = holiday_dataframe.sort_values('locdate')
     return dataframe
 
 holiday_dataframe = holiday_df(holiday_json_path)
