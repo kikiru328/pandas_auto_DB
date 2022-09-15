@@ -6,7 +6,7 @@ Returns:
 import pandas as pd
 import numpy as np
 import requests
-from datetime import datetime as dt
+import datetime as dt
 import json
 from pandas import json_normalize
 
@@ -22,7 +22,7 @@ def holiday_df(holiday_json_path,custom_holiday):
         key = json.load(api_key)
     api_key = key['holiday_api_key']
 
-    today_year = dt.today().year
+    today_year = dt.datetime.today().year
     key = api_key
     url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?_type=json&numOfRows=50&solYear=' + str(today_year) + '&ServiceKey=' + str(key)
     response = requests.get(url)
@@ -32,7 +32,7 @@ def holiday_df(holiday_json_path,custom_holiday):
         dataframe = json_normalize(holidays_data)
         
     def change_date(x):
-        hx = dt.strptime(str(x), '%Y%m%d')
+        hx = dt.datetime.strptime(str(x), '%Y%m%d')
         hx = hx.strftime('%Y-%m-%d-%A')
         return hx 
     
