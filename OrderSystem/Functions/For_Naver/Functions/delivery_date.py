@@ -52,8 +52,6 @@ def holiday_df(holiday_json_path,custom_holiday):
     holiday_dataframe = holiday_dataframe.sort_values('locdate')
     return dataframe
 
-holiday_dataframe = holiday_df(holiday_json_path)
-
 
 def get_dawn_delivery_start_date(pay_time, holiday_dataframe):
     """
