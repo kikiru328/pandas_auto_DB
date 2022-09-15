@@ -48,8 +48,8 @@ def holiday_df(holiday_json_path,custom_holiday):
     
     custom_delivery_schedule = pd.read_excel(custom_holiday)
     custom_delivery_schedule['locdate'] = custom_delivery_schedule['locdate'].apply(lambda x : custom_change_date(x))
-    holiday_dataframe = pd.concat([holiday_dataframe, custom_delivery_schedule],axis=0,ignore_index=True)
-    holiday_dataframe = holiday_dataframe.sort_values('locdate')
+    dataframe = pd.concat([dataframe, custom_delivery_schedule],axis=0,ignore_index=True)
+    dataframe = dataframe.sort_values('locdate')
     return dataframe
 
 
