@@ -218,20 +218,20 @@ class change_option:
         return d_f
 
 
-# def unify_table(p_d, naver_path):
-#     """
-#     Total functions
-#     Args:
-#         d_f: uniformed d_f
+def unify_table(p_d, naver_path, product_name_json_file, option_info_json_file):
+    """
+    Total functions
+    Args:
+        d_f: uniformed d_f
 
-#     Returns:
-#         d_f: uniformed for customer
-#     """
-#     apply_pandas(p_d)
-#     d_f = read_naver_table(naver_path)
-#     d_f = change_product_name_by_list(d_f)
-#     d_f = split_product_options(d_f)
-#     return d_f
+    Returns:
+        d_f: uniformed for customer
+    """
+    apply_pandas(p_d)
+    d_f = read_naver_table(naver_path)
+    d_f = change_product.change_product_name(d_f, product_name_json_file)
+    d_f = change_option.split_options_by_product(d_f, option_info_json_file)
+    return d_f
         
     
     
