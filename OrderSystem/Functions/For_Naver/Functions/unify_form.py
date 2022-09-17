@@ -124,8 +124,8 @@ class change_option:
 
     def make_dict(options_info, title):
         dict_ = {}
-        for col, row in zip(options_info.get(title).get('행'), options_info.get(title).get('열')):
-            dict_.update({col:row})
+        for col, row in zip(options_info.get(title).get('열'), options_info.get(title).get('행')):
+            dict_.update({row:col})
             
         return dict_    
 
