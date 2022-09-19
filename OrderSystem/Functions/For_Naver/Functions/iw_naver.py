@@ -9,19 +9,6 @@ def apply_pandas(pd):
     pd.set_option('display.width', None)
     pd.set_option('display.max_colwidth', None)
     
-def read_naver_table(naver_path):
-    df = pd.read_excel(naver_path, header=1)
-    need_columns = [
-        '상품주문번호','주문번호','배송방법(구매자 요청)','배송방법','택배사','송장번호','발송일',
-        '구매자명','수취인명','상품명','상품종류','옵션정보','수량','옵션가격','상품가격',
-        '상품별 총 주문금액','기본배송지','상세배송지','구매자연락처','배송메세지','정산예정금액','수취인연락처1',
-        '배송속성','배송희망일','결제일','구매자ID','우편번호']
-    columns = df.columns.to_list()
-    drop_columns = [x for x in columns if x not in need_columns]
-    df = df.drop(drop_columns, axis=1)
-    df = df.fillna(' ')
-    df['배송지'] = df['기본배송지'] + ' ' + df['상세배송지']
-    return df    
 
 def read_imweb_table(imweb_path):
     df = pd.read_excel(imweb_path)
@@ -80,6 +67,7 @@ def change_product_name_by_option_add(df):
             
         elif '탄수화물' in option:
             df.loc[index_,'상품명'] = option.split(' : ')[1]
+            df.loc[index_,'옵션정보'] = f'탄수화물 추가: {option.split(" : ")[1]}'
             df.loc[index_,'상품종류'] = '추가구성상품'
     return df
 
@@ -160,6 +148,11 @@ def change_product_name_as_naver(df):
     return df
 
 def split_table_for_honest(df):
+    for index_ in df.index:     
+        df.loc[index_,'배송방법(구매자 요청)'] = '직접전달'
+        df.loc[index_,'배송방법'] = '직접전달' 
+        df.loc[index_,'배송속성'] = '일반배송'
+        
     honest_dataframe = df[df['상품명'] == '[Honest Line | 단품] 어니스트라인 (닭고야)']
     honest_indexes = honest_dataframe.index
     original_product_dataframe = df.drop(honest_indexes,axis=0)\
@@ -170,8 +163,8 @@ def split_table_for_honest(df):
 def split_honest_options(df):
     df['상품선택'] = ''
     for index_, option in enumerate(df['옵션정보'].to_list()):
-            df.loc[index_,'상품선택'] = option.split(' / 상품선택 : ')[1]
-            df.loc[index_,'옵션정보'] = option.split(' / 상품선택 : ')[0]
+            df.loc[index_,'상품선택'] = option.split(' / 상품선택 : ')[1].split(' / ')[0]
+            df.loc[index_,'옵션정보'] = option.split(' / 상품선택 : ')[0] + ' / ' + '배송방법' + option.split(' / 배송방법')[1]
     return df
 
 def count_honest_products(df):
