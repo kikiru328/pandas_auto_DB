@@ -50,8 +50,8 @@ def strip_count_option(df):
 def rename_delivery_option(df):
     def rename_delivery(x):
         if "공동현관 비밀번호(없을시'없음'작성)" in x:
-            x = x.replace("공동현관 비밀번호(없을시'없음'작성)",
-                         "공동현관 출입비밀번호 (없을 시 '없음'작성)")
+            x = x.replace("공동현관 비밀번호(없을시'없음'작성) :",
+                         "공동현관 출입비밀번호 (없을 시 '없음'작성):")
             return x
         else:
             return x
