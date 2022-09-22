@@ -239,7 +239,7 @@ class change_delivery_info:
                     d_f.loc[idx, '단품옵션'] = split_opt.split(': ')[1]
         return d_f
 
-def unify_table(p_d, naver_path, product_name_json_file, option_info_json_file):
+def unify_table_for_naver(p_d, naver_path, product_name_json_file, option_info_json_file):
     """
     Total functions
     Args:
@@ -254,6 +254,19 @@ def unify_table(p_d, naver_path, product_name_json_file, option_info_json_file):
     d_f = change_option.split_options_by_product(d_f, option_info_json_file)
     d_f = change_delivery_info.split_delivery_options(d_f)
     return d_f
+      
         
-    
-    
+def unify_table_for_other_df(p_d, d_f, product_name_json_file, option_info_json_file):
+    """
+    Total functions
+    Args:
+        d_f: uniformed d_f
+
+    Returns:
+        d_f: uniformed for customer
+    """
+    apply_pandas(p_d)
+    d_f = change_product.change_product_name(d_f, product_name_json_file)
+    d_f = change_option.split_options_by_product(d_f, option_info_json_file)
+    d_f = change_delivery_info.split_delivery_options(d_f)
+    return d_f    

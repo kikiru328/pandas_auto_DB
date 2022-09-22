@@ -39,7 +39,7 @@ def rename_columns(df):
         '계정' : '구매자ID',
         '우편번호' : '우편번호'
     })
-    
+    df['우편번호'] = df['우편번호'].astype(str)
     df['상품주문번호'] = df['상품주문번호'].astype(str)
     df['주문번호'] = df['주문번호'].astype(str)
     return df
@@ -56,7 +56,7 @@ def seperate_delivery(df):
             basic_deliv = imweb_deliv
             df.loc[index, '기본배송지'] = basic_deliv
         
-    df = df.drop(columns = '배송지', axis=1)
+    # df = df.drop(columns = '배송지', axis=1)
     return df
 
 
@@ -65,7 +65,7 @@ def order_other_columns(df):
     '상품주문번호', '주문번호', '배송방법(구매자 요청)', '배송방법', '택배사',
     '송장번호', '발송일', '구매자명', '수취인명', '상품명', '상품종류', '옵션정보',
     '수량', '옵션가격', '상품가격', '상품별 총 주문금액', '기본배송지', '상세배송지',
-    '구매자연락처', '배송메세지', '정산예정금액', '수취인연락처1', '배송속성',
+    '구매자연락처', '배송메세지', '정산예정금액', '수취인연락처1', '배송속성','배송지',
     '배송희망일', '결제일', '구매자ID', '우편번호', '상품번호', '옵션관리코드']
     for naver_col in naver_cols:
         if naver_col not in df:
@@ -212,24 +212,36 @@ def change_rows_by_format(df):
         df.loc[index_,'배송방법(구매자 요청)'] = '직접전달'
         df.loc[index_,'배송방법'] = '직접전달' 
         df.loc[index_,'배송속성'] = '일반배송'
+
+    df['상품번호'] = df['상품번호'].astype(str)   
+    # df['옵션가격'] = df['옵션가격'].astype(int)
+    # df['상품가격'] = df['상품가격'].astype(int)    
+    def change_numb(x):
+        if str(x).startswith('1'):
+            pn = '0' + str(x)
+            f_pn = pn[:3] + '-' + pn[3:7] + '-' + pn[7:]
+        else:
+            pn = '0' + str(x)
+            f_pn = pn[:4] + '-' + pn[4:8] + '-' + pn[8:]
+        return f_pn
     
-    # df['우편번호'] = df['우편번호'].astype(str)
-    # df['상품번호'] = df['상품번호'].astype(str)   
+    df['구매자연락처'] = df['구매자연락처'].apply(lambda x : change_numb(x))
+    df['수취인연락처1'] = df['수취인연락처1'].apply(lambda x : change_numb(x))
     
-    # def change_numb(x):
-    #     if str(x).startswith('1'):
-    #         pn = '0' + str(x)
-    #         f_pn = pn[:3] + '-' + pn[3:7] + '-' + pn[7:]
-    #     else:
-    #         pn = '0' + str(x)
-    #         f_pn = pn[:4] + '-' + pn[4:8] + '-' + pn[8:]
-    #     return f_pn
+    def change_post(x):
+        if len(str(x)) < 5 :
+            post_ = '0' + str(x)
+        else:
+            post_ = str(x)
+        return post_
+
+    df['우편번호'] = df['우편번호'].apply(lambda x : change_post(x))
     
-    # df['구매자연락처'] = df['구매자연락처'].apply(lambda x : change_numb(x))
-    # df['수취인연락처1'] = df['수취인연락처1'].apply(lambda x : change_numb(x))
+    df['결제일'] = pd.to_datetime(df['결제일'])
     return df
 
 
+    
 class honest:
     def split_table_for_honest(df):
         honest_dataframe = df[df['상품명'] == '[Honest Line | 단품] 어니스트라인 (닭고야)']
@@ -368,7 +380,8 @@ def preprocessing(imweb_path, option_path, product_path, honest_options_json_fil
     
     # imweb_upload = imweb_reformation.copy()
     # honest_upload = honest_reformation.copy()
-    
+    imweb_order['플랫폼'] = '자사몰'
+    imweb_order = imweb_order.drop(columns = ['상품번호','옵션관리코드','상품선택'])
     return imweb_order
 # , imweb_reformation, imweb_upload, honest_order, honest_reformation, honest_upload
 

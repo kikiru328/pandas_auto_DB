@@ -10,8 +10,6 @@ import datetime as dt
 import json
 from pandas import json_normalize
 
-holiday_json_path = './holiday_api.json'
-
 def read_uniformed_dataframe(unify_form_path):
     d_f = pd.read_excel(unify_form_path)
     return d_f
@@ -1223,3 +1221,4 @@ class get_schedule:
         direct, normal = get_schedule.get_direct_normal_delivery_holiday(holiday_dataframe)
         dawn = get_schedule.get_dawn_delivery_holiday(holiday_dataframe)
         return direct,normal,dawn
+    
