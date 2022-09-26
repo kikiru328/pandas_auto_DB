@@ -267,8 +267,8 @@ def unify_table_for_naver(p_d, naver_path, product_name_json_file, option_info_j
     d_f = read_naver_table(naver_path)
     d_f = change_product.change_product_name(d_f, product_name_json_file)
     d_f = change_option.split_options_by_product(d_f, option_info_json_file)
-    d_f = change_delivery_info.split_delivery_options(d_f)
     d_f = new_columns.make_new_columns(d_f)
+    d_f = change_delivery_info.split_delivery_options(d_f)
     return d_f
       
         
@@ -284,6 +284,6 @@ def unify_table_for_other_df(p_d, d_f, product_name_json_file, option_info_json_
     apply_pandas(p_d)
     d_f = change_product.change_product_name(d_f, product_name_json_file)
     d_f = change_option.split_options_by_product(d_f, option_info_json_file)
-    d_f = change_delivery_info.split_delivery_options(d_f)
     d_f = new_columns.make_new_columns(d_f)
+    d_f = change_delivery_info.split_delivery_options(d_f)
     return d_f    

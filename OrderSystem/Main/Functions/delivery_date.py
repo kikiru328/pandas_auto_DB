@@ -48,7 +48,6 @@ def holiday_df(holiday_json_path,custom_holiday):
     return dataframe
 
 class get_delivery_start_date_each:
-    
     def get_dawn_delivery_start_date(pay_time, holiday_dataframe):
         """
         True : 17시 이후 > 다음 요일 배송 시스템으로 적용
