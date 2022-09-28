@@ -250,7 +250,7 @@ class new_columns:
         Args:
             d_f (_type_): uniformed d_f
         """
-        d_f['고객요청옵션'] = ''
+        d_f['고객요청옵션'] = 'X'
         return d_f
     
         
