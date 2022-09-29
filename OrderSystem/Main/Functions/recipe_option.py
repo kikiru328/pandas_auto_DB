@@ -47,7 +47,7 @@ def seperate_dataframe_for_recipe(d_f):
 class StandardIngredient:
     def prepare_ingredient_standard(standard_df,menu_list):
         recipe_df = pd.DataFrame()
-        for index, std_index in enumerate(standard_df.index):
+        for index, std_index in enumerate(list(standard_df.index)):
             product = standard_df.loc[std_index, '상품명']
             dining_count = int(product.split('] ')[1].split(' ')[1].split('식')[0])
             if dining_count == 1:

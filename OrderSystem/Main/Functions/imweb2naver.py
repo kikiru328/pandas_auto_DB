@@ -183,6 +183,8 @@ def change_order_id(df):
     return df
 
 
+# > UNIFORY_FORM 에서 변환 < #
+
 # def change_product_name(df,path):
 #     def read_product_json(path):
 #         import json
@@ -220,9 +222,11 @@ def change_rows_by_format(df):
         if str(x).startswith('1'):
             pn = '0' + str(x)
             f_pn = pn[:3] + '-' + pn[3:7] + '-' + pn[7:]
-        else:
+        elif str(x).startswith('5'):
             pn = '0' + str(x)
             f_pn = pn[:4] + '-' + pn[4:8] + '-' + pn[8:]
+        else:
+            f_pn = str(x)
         return f_pn
     
     df['구매자연락처'] = df['구매자연락처'].apply(lambda x : change_numb(x))
@@ -250,14 +254,14 @@ class honest:
             .reset_index(drop=True)
         honest_dataframe = honest_dataframe.reset_index(drop=True)
         
-        def split_honest_select_option(df):
-            df['상품선택'] = ''
-            for index_, option in enumerate(df['옵션정보'].to_list()):
-                    df.loc[index_,'상품선택'] = option.split(' / 상품선택 : ')[1].split(' / ')[0]
-                    df.loc[index_,'옵션정보'] = option.split(' / 상품선택 : ')[0] + ' / ' + '배송방법' + option.split(' / 배송방법')[1]
-            # df = df.drop(columns = '상품선택',axis=1)
-            return df
-        honest_dataframe = split_honest_select_option(honest_dataframe)
+        # def split_honest_select_option(df):
+        #     df['상품선택'] = ''
+        #     for index_, option in enumerate(df['옵션정보'].to_list()):
+        #             df.loc[index_,'상품선택'] = option.split(' / 상품선택 : ')[1].split(' / ')[0]
+        #             df.loc[index_,'옵션정보'] = option.split(' / 상품선택 : ')[0] + ' / ' + '배송방법' + option.split(' / 배송방법')[1]
+        #     # df = df.drop(columns = '상품선택',axis=1)
+        #     return df
+        # honest_dataframe = split_honest_select_option(honest_dataframe)
         
         return original_product_dataframe, honest_dataframe        
     
@@ -287,7 +291,7 @@ class honest:
         return dfo, dfh, honest_options_info, dict_
     
     
-    def add_honest_options(df,honest_options_json_file):
+    # def add_honest_options(df,honest_options_json_file):
         dfo, dfh, honest_options_info, dict_ = honest.honest_option_information(df,honest_options_json_file)
         
         import pandas as pd
@@ -372,7 +376,7 @@ def preprocessing(imweb_path, option_path, product_path, honest_options_json_fil
     imweb_order = change_order_id(imweb_order)
     # imweb_order = change_product_name(imweb_order, product_path)
     imweb_order = change_rows_by_format(imweb_order)
-    imweb_order = honest.add_honest_options(imweb_order,honest_options_json_file)
+    # imweb_order = honest.add_honest_options(imweb_order,honest_options_json_file)
     # imweb_reformation = reformation_columns(imweb_order)
     # honest_reformation = reformation_columns(honest_order)
     # imweb_reformation = reformation_other_columns(imweb_reformation)
@@ -381,7 +385,8 @@ def preprocessing(imweb_path, option_path, product_path, honest_options_json_fil
     # imweb_upload = imweb_reformation.copy()
     # honest_upload = honest_reformation.copy()
     imweb_order['플랫폼'] = '자사몰'
-    imweb_order = imweb_order.drop(columns = ['상품번호','옵션관리코드','상품선택'])
+    # imweb_order = imweb_order.drop(columns = ['상품번호','옵션관리코드','상품선택'])
+    imweb_order = imweb_order.drop(columns = ['상품번호','옵션관리코드'])
     return imweb_order
 # , imweb_reformation, imweb_upload, honest_order, honest_reformation, honest_upload
 

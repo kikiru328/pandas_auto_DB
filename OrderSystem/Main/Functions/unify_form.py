@@ -157,25 +157,25 @@ class change_option:
         return d_f
 
 
-    def change_func_pack(d_f, main_df, order_id, option_list, options_info, main_idx, title):
-        dict_ = change_option.make_dict(options_info, title)
+    # def change_func_pack(d_f, main_df, order_id, option_list, options_info, main_idx, title):
+    #     dict_ = change_option.make_dict(options_info, title)
         
-        for col_ in options_info.get(title).get('열'):
-            d_f.loc[main_idx, col_] = np.nan
+    #     for col_ in options_info.get(title).get('열'):
+    #         d_f.loc[main_idx, col_] = np.nan
             
-        if len(option_list) != 0:
-            box_idx_list = list(main_df[(main_df['주문번호']==order_id) & (main_df['상품명']=='[윤식단][단품] 닭고야/어니스트')].index)
-            try:
-                for box_idx in box_idx_list:
-                    box_idx = box_idx
-            except:
-                pass
-            for opt_ in option_list:
-                for row_ in options_info.get(title).get('행'):
-                    if row_ in opt_:
-                        Col_ = dict_.get(row_)
-                        d_f.loc[box_idx, Col_] = opt_
-        return d_f
+    #     if len(option_list) != 0:
+    #         box_idx_list = list(main_df[(main_df['주문번호']==order_id) & (main_df['상품명']=='[윤식단][단품] 닭고야/어니스트')].index)
+    #         try:
+    #             for box_idx in box_idx_list:
+    #                 box_idx = box_idx
+    #         except:
+    #             pass
+    #         for opt_ in option_list:
+    #             for row_ in options_info.get(title).get('행'):
+    #                 if row_ in opt_:
+    #                     Col_ = dict_.get(row_)
+    #                     d_f.loc[box_idx, Col_] = opt_
+    #     return d_f
 
 
     def split_options_by_product(d_f, path):
@@ -189,34 +189,51 @@ class change_option:
         """
         d_f, main_df, option_df = change_option.split_dataframe(d_f)
         options_info = change_option.read_option_json(path)
-        
-        for order_id in option_df['주문번호'].to_list():
-            main_idx = main_df[main_df['주문번호']==order_id].index[0]
-            opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
-            opt_count = list(option_df[option_df['주문번호'] == order_id]['수량'])
-            opt_list_count = []
-            for option, count in zip(opt_list, opt_count):
-                count_str = ' X ' +str(count)
-                opt_list_count.append(option+count_str)
-            d_f.loc[main_idx,'옵션유무'] = 'O'
+        if len(option_df) != 0 :
+            for order_id in option_df['주문번호'].to_list():
+                main_idx = main_df[main_df['주문번호']==order_id].index[0]
+                opt_list = list(option_df[option_df['주문번호'] == order_id]['상품명'])
+                opt_count = list(option_df[option_df['주문번호'] == order_id]['수량'])
+                opt_list_count = []
+                for option, count in zip(opt_list, opt_count):
+                    count_str = ' X ' +str(count)
+                    opt_list_count.append(option+count_str)
+                d_f.loc[main_idx,'옵션유무'] = 'O'
 
-            add = change_option.make_option_list(options_info, '추가', opt_list_count)
-            remove = change_option.make_option_list(options_info, '제거', opt_list_count)
-            change = change_option.make_option_list(options_info, '변경', opt_list_count)
-            pack = change_option.make_option_list(options_info, '팩', opt_list_count)
-            etc = change_option.make_option_list(options_info, '기타', opt_list_count)
-            
-            d_f = change_option.change_func(d_f,add, options_info, main_idx, '추가')
-            d_f = change_option.change_func(d_f,remove, options_info, main_idx, '제거')
-            d_f = change_option.change_func(d_f,change, options_info, main_idx, '변경')
-            d_f = change_option.change_func_pack(d_f,main_df, order_id, pack, options_info, main_idx,'팩')
-            d_f = change_option.change_func(d_f,etc, options_info, main_idx, '기타')
+                add = change_option.make_option_list(options_info, '추가', opt_list_count)
+                remove = change_option.make_option_list(options_info, '제거', opt_list_count)
+                change = change_option.make_option_list(options_info, '변경', opt_list_count)
+                # pack = change_option.make_option_list(options_info, '팩', opt_list_count)
+                etc = change_option.make_option_list(options_info, '기타', opt_list_count)
+                
+                d_f = change_option.change_func(d_f,add, options_info, main_idx, '추가')
+                d_f = change_option.change_func(d_f,remove, options_info, main_idx, '제거')
+                d_f = change_option.change_func(d_f,change, options_info, main_idx, '변경')
+                # d_f = change_option.change_func_pack(d_f,main_df, order_id, pack, options_info, main_idx,'팩')
+                d_f = change_option.change_func(d_f,etc, options_info, main_idx, '기타')
 
+                
+                d_f = d_f.fillna('X')
+                d_f = d_f[d_f['상품종류']=='조합형옵션상품']
+            return d_f
+        else:
+            d_f['옵션유무'] = 'X'
+            def no_options(d_f, options_info, title):
+                list_ = []
+                for opt_col in options_info.get(title).get('열'):
+                    list_.append(opt_col)
+                for col in list_:
+                    d_f[col] = 'X'
+                return d_f
             
-            d_f = d_f.fillna('X')
+            add = no_options(d_f,options_info, '추가')
+            remove = no_options(d_f,options_info, '제거')
+            change = no_options(d_f,options_info, '변경')
+            etc = no_options(d_f,options_info, '기타')
             d_f = d_f[d_f['상품종류']=='조합형옵션상품']
-        return d_f
-
+            return d_f
+        
+        
 class change_delivery_info:
     def split_delivery_options(d_f):
         """
